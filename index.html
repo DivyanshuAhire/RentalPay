@@ -1,71 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>RentalPay</title>
-<link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-<header>
-
-<div class="logo">
-RentalPay
-</div>
-
-<div class="search-section">
-
-<input id="search" placeholder="Search outfits">
-
-<select id="locationFilter">
-<option value="">All Cities</option>
-<option>Mumbai</option>
-<option>Pune</option>
-<option>Delhi</option>
-<option>Bangalore</option>
-</select>
-
-<select id="sortPrice">
-<option value="">Sort</option>
-<option value="low">Price Low → High</option>
-<option value="high">Price High → Low</option>
-</select>
-
-</div>
-
-<div class="auth-buttons">
-
-<button onclick="openLogin()">Login</button>
-<button onclick="openSignup()">Signup</button>
-
-</div>
-
-</header>
-
-<section id="catalog"></section>
-
-<!-- LOGIN MODAL -->
-
-<div id="authModal" class="modal">
-
-<div class="modal-box">
-
-<h2 id="authTitle">Login</h2>
-
-<input id="username" placeholder="Username">
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-
-<button onclick="submitAuth()">Submit</button>
-
-<p id="switch"></p>
-
-</div>
-
-</div>
-
-<script src="script.js"></script>
-
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>p1</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
