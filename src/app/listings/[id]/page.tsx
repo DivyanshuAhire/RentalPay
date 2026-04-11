@@ -92,6 +92,29 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       const rzpData = await rzpRes.json();
       if (!rzpRes.ok) throw new Error(rzpData.error || "Payment creation failed");
 
+      if (user.email === "tester@stylep2p.com") {
+        toast.info("Simulation Mode: Bypassing Razorpay checkout...");
+        // Directly simulate the successful payment handler
+        const verifyRes = await fetch("/api/payment/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id: rzpData.id,
+            razorpay_payment_id: "mock_test_pay_id",
+            razorpay_signature: "mock_tester_signature",
+            orderId: data.order._id
+          })
+        });
+        if (verifyRes.ok) {
+          toast.success("Simulation Complete! Order booked.");
+          setIsModalOpen(false);
+          router.push("/dashboard");
+        } else {
+          toast.error("Mock verification failed.");
+        }
+        return;
+      }
+
       const options = {
         key: 'rzp_test_placeholder',
         amount: rzpData.amount,
@@ -113,7 +136,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
           if (verifyRes.ok) {
             toast.success("Payment successful! Order booked.");
             setIsModalOpen(false);
-            router.push("/dashboard/user");
+            router.push("/dashboard");
           } else {
             toast.error("Payment verification failed.");
           }
