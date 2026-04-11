@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { ownerId, title, description, category, size, pricePerDay, deposit, images, availabilityDates } = body;
+    const { ownerId, title, description, category, size, pricePerDay, deposit, images, availabilityDates, location } = body;
 
     const newListing = await Listing.create({
       ownerId,
@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       size,
       pricePerDay,
       deposit,
+      location,
       images: images || [],
       availabilityDates: availabilityDates || []
     });
