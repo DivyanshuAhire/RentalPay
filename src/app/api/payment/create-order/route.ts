@@ -8,8 +8,20 @@ export async function POST(req: Request) {
     const { orderId } = await req.json();
     await dbConnect();
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("renterId");
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+
+    // BYPASS FOR TESTER SIMULATION
+    // @ts-ignore
+    if (order.renterId?.email === "tester@stylep2p.com") {
+      order.razorpayOrderId = "mock_order_" + order._id;
+      await order.save();
+      return NextResponse.json({ 
+        id: order.razorpayOrderId, 
+        currency: "INR", 
+        amount: Math.round(order.totalPrice * 100) 
+      }, { status: 200 });
+    }
 
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID as string,
