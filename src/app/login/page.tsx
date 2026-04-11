@@ -30,8 +30,7 @@ export default function Login() {
         login(data.user);
         toast.success("Successfully logged in");
         if (data.user.role === "ADMIN") router.push("/dashboard/admin");
-        else if (data.user.role === "OWNER") router.push("/dashboard/owner");
-        else router.push("/dashboard/user");
+        else router.push("/dashboard");
       } else {
         toast.error(data.error || "Failed to login");
       }
