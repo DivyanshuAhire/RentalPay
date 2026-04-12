@@ -180,15 +180,11 @@ export default function UnifiedDashboard() {
                             <span className="px-4 py-2 bg-gray-50 text-gray-600 text-xs font-bold rounded-xl border border-gray-200">Payment: {order.paymentStatus}</span>
                             <span className="px-4 py-2 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100">Status: {order.status}</span>
                          </div>
-                         {order.paymentStatus === "Paid" && order.status === "Accepted" && (
-                            <Button onClick={() => handleUpdateStatus(order._id, 'Delivered')} className="bg-indigo-600 hover:bg-indigo-700 rounded-xl h-11 text-sm font-bold shadow-md">Mark Delivered</Button>
-                         )}
+                         {/* Mark Delivered removed, now handled by Pickup OTP */}
                          {order.status === "Delivered" && (
                             <Button onClick={() => handleUpdateStatus(order._id, 'Returned')} className="bg-purple-600 hover:bg-purple-700 rounded-xl h-11 text-sm font-bold shadow-md">Mark Returned</Button>
                          )}
-                         {order.status === "Returned" && (
-                            <Button onClick={() => handleUpdateStatus(order._id, 'Completed')} className="bg-green-600 hover:bg-green-700 rounded-xl h-11 text-sm font-bold shadow-md">Complete Order</Button>
-                         )}
+                         {/* Complete Order removed, now handled by Return OTP */}
 
                          {/* OTP VERIFICATION FOR SELLER (PICKUP) */}
                          {order.paymentStatus === "Paid" && order.status === "Accepted" && (
