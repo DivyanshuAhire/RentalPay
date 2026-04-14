@@ -98,11 +98,11 @@ export default function Signup() {
              <form onSubmit={handleSendOTP} className="space-y-4">
                <div className="text-red-600 text-xs font-semibold mb-2">Do not use phone number right now. Use email only. Phone verification is under development.</div>
                <div className="space-y-2">
-                 <Label htmlFor="identifier">Email or Phone</Label>
+                 <Label htmlFor="identifier">Email</Label>
                  <Input id="identifier" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} className="h-12" placeholder="Email or phone number" />
                </div>
                <Button type="submit" className="w-full h-12 text-md mt-4 bg-indigo-600 hover:bg-indigo-700" disabled={loading}>
-                  {loading ? "Sending..." : "Get OTP via WhatsApp"}
+                  {loading ? "Sending..." : "Get OTP"}
                </Button>
              </form>
            )}
