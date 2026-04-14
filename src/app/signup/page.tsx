@@ -11,9 +11,9 @@ import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Signup() {
-  const [step, setStep] = useState(1); // 1: Phone, 2: OTP, 3: Details
+  const [step, setStep] = useState(1); // 1: Identifier, 2: OTP, 3: Details
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
@@ -27,10 +27,10 @@ export default function Signup() {
       const res = await fetch("/api/auth/otp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ identifier }),
       });
       if (res.ok) {
-        toast.success("OTP sent to WhatsApp!");
+        toast.success("OTP sent successfully!");
         setStep(2);
       } else {
         const data = await res.json();
@@ -48,10 +48,10 @@ export default function Signup() {
       const res = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code: otp }),
+        body: JSON.stringify({ identifier, code: otp }),
       });
       if (res.ok) {
-        toast.success("Phone verified!");
+        toast.success("Verified successfully!");
         setStep(3);
       } else {
         const data = await res.json();
@@ -69,7 +69,7 @@ export default function Signup() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, password }),
+        body: JSON.stringify({ name, identifier, password }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -97,8 +97,8 @@ export default function Signup() {
           {step === 1 && (
              <form onSubmit={handleSendOTP} className="space-y-4">
                 <div className="space-y-2">
-                   <Label htmlFor="phone">Phone Number (WhatsApp)</Label>
-                   <Input id="phone" required value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12" placeholder="+91 XXXXX XXXXX" />
+                   <Label htmlFor="identifier">Email or Phone</Label>
+                   <Input id="identifier" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} className="h-12" placeholder="Email or phone number" />
                 </div>
                 <Button type="submit" className="w-full h-12 text-md mt-4 bg-indigo-600 hover:bg-indigo-700" disabled={loading}>
                      {loading ? "Sending..." : "Get OTP via WhatsApp"}
@@ -115,7 +115,7 @@ export default function Signup() {
                 <Button type="submit" className="w-full h-12 text-md mt-4 bg-indigo-600 hover:bg-indigo-700" disabled={loading}>
                      {loading ? "Verifying..." : "Verify OTP"}
                 </Button>
-                <button type="button" onClick={() => setStep(1)} className="text-indigo-600 text-sm w-full font-medium">Change Phone Number</button>
+                <button type="button" onClick={() => setStep(1)} className="text-indigo-600 text-sm w-full font-medium">Change email or phone</button>
              </form>
           )}
 

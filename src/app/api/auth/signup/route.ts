@@ -8,15 +8,23 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { name, phone, password, address, email } = body;
+    const { name, identifier, password, address } = body;
 
-    if (!name || !phone || !password) {
+    if (!name || !identifier || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const existingUser = await User.findOne({ phone });
+    const normalizedIdentifier = identifier.toString().trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedIdentifier);
+
+    const existingUser = await User.findOne({
+      $or: [
+        { phone: normalizedIdentifier },
+        { email: isEmail ? normalizedIdentifier.toLowerCase() : undefined },
+      ].filter(Boolean),
+    });
     if (existingUser) {
-      return NextResponse.json({ error: "Phone number already registered" }, { status: 400 });
+      return NextResponse.json({ error: "This email or phone is already registered" }, { status: 400 });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -24,17 +32,17 @@ export async function POST(req: Request) {
 
     const user = await User.create({
       name,
-      phone,
       password: hashedPassword,
       role: "USER",
-      email,
+      email: isEmail ? normalizedIdentifier.toLowerCase() : undefined,
+      phone: isEmail ? undefined : normalizedIdentifier,
       address,
     });
 
-    const token = signToken({ id: user._id, role: user.role, phone: user.phone });
+    const token = signToken({ id: user._id, role: user.role, phone: user.phone, email: user.email });
 
     const response = NextResponse.json(
-      { message: "Registration successful", user: { id: user._id, phone: user.phone, role: user.role, name: user.name } },
+      { message: "Registration successful", user: { id: user._id, email: user.email, phone: user.phone, role: user.role, name: user.name } },
       { status: 201 }
     );
     

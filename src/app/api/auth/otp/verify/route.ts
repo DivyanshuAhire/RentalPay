@@ -4,15 +4,19 @@ import { VerificationCode } from "@/models/VerificationCode";
 
 export async function POST(req: NextRequest) {
   try {
-    const { phone, code } = await req.json();
+    const { identifier, code } = await req.json();
 
-    if (!phone || !code) {
-      return NextResponse.json({ error: "Phone and code are required." }, { status: 400 });
+    if (!identifier || !code) {
+      return NextResponse.json({ error: "Identifier and code are required." }, { status: 400 });
     }
 
     await dbConnect();
 
-    const record = await VerificationCode.findOne({ identifier: phone, code });
+    const normalizedIdentifier = identifier.toString().trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedIdentifier);
+    const destination = isEmail ? normalizedIdentifier.toLowerCase() : normalizedIdentifier;
+
+    const record = await VerificationCode.findOne({ identifier: destination, code });
 
     if (!record) {
       return NextResponse.json({ error: "Invalid OTP code." }, { status: 400 });

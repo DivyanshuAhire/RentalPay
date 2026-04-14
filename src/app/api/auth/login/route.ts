@@ -8,21 +8,30 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { phone, password } = body;
+    const { identifier, password } = body;
 
-    if (!phone || !password) {
+    if (!identifier || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const user = await User.findOne({ phone });
-    if (!user || user.password && !(await bcrypt.compare(password, user.password))) {
-       return NextResponse.json({ error: "Invalid phone number or password" }, { status: 401 });
+    const normalizedIdentifier = identifier.toString().trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedIdentifier);
+
+    const user = await User.findOne({
+      $or: [
+        { phone: normalizedIdentifier },
+        { email: isEmail ? normalizedIdentifier.toLowerCase() : normalizedIdentifier },
+        { name: normalizedIdentifier },
+      ],
+    });
+    if (!user || (user.password && !(await bcrypt.compare(password, user.password)))) {
+       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = signToken({ id: user._id, role: user.role, phone: user.phone });
+    const token = signToken({ id: user._id, role: user.role, phone: user.phone, email: user.email });
 
     const response = NextResponse.json(
-      { message: "Login successful", user: { id: user._id, phone: user.phone, role: user.role, name: user.name } },
+      { message: "Login successful", user: { id: user._id, email: user.email, phone: user.phone, role: user.role, name: user.name } },
       { status: 200 }
     );
     

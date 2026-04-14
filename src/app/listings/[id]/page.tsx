@@ -92,7 +92,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       const rzpData = await rzpRes.json();
       if (!rzpRes.ok) throw new Error(rzpData.error || "Payment creation failed");
 
-      if (user.email === "tester@stylep2p.com") {
+      const isTesterUser =
+        user?.email?.toLowerCase() === "tester@stylep2p.com" ||
+        user?.name?.trim().toLowerCase() === "tester";
+
+      if (isTesterUser) {
         toast.info("Simulation Mode: Bypassing Razorpay checkout...");
         // Directly simulate the successful payment handler
         const verifyRes = await fetch("/api/payment/verify", {
