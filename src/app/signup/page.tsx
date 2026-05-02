@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { auth } from "@/lib/firebase";
 import { updateProfile, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { useAuth } from "@/context/AuthContext";
@@ -13,7 +13,7 @@ import { TERMS_AND_CONDITIONS } from "@/constants/terms";
 import { toast } from "sonner";
 import Link from "next/link";
 
-export default function Signup() {
+function SignupContent() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1); // 1: Identifier, 2: OTP, 3: Details
   const [name, setName] = useState("");
@@ -224,8 +224,8 @@ export default function Signup() {
                 <Label htmlFor="terms" className="text-sm text-gray-600 leading-tight cursor-pointer">
                   I agree to the{" "}
                   <Dialog>
-                    <DialogTrigger asChild>
-                      <button type="button" className="text-indigo-600 font-bold hover:underline">Terms and Conditions</button>
+                    <DialogTrigger render={<button type="button" className="text-indigo-600 font-bold hover:underline" />}>
+                      Terms and Conditions
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto rounded-3xl">
                       <DialogHeader>
@@ -307,5 +307,13 @@ export default function Signup() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function Signup() {
+  return (
+    <Suspense fallback={<div className="text-center py-24 text-gray-400 font-medium">Loading...</div>}>
+      <SignupContent />
+    </Suspense>
   );
 }
