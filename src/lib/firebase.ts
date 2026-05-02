@@ -11,5 +11,14 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+// Only initialize if we have the configuration to avoid crashing during build
+let app;
+if (firebaseConfig.apiKey) {
+  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+} else {
+  // Mock app for build time
+  app = {} as any;
+}
+
+export const auth = firebaseConfig.apiKey ? getAuth(app) : {} as any;
+export { app };
