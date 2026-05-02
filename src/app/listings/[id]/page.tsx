@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
@@ -18,7 +20,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const resolvedParams = use(params);
   const { id } = resolvedParams;
   const [listing, setListing] = useState<any>(null);
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const router = useRouter();
 
   const [startDate, setStartDate] = useState<Date>();
@@ -26,6 +28,63 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const [deliveryType, setDeliveryType] = useState("Pickup");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isPhoneVerifyModalOpen, setIsPhoneVerifyModalOpen] = useState(false);
+  const [phoneToVerify, setPhoneToVerify] = useState("");
+  const [verifyOtp, setVerifyOtp] = useState("");
+  const [phoneVerifyStep, setPhoneVerifyStep] = useState(1);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [isPhoneVerifyLoading, setIsPhoneVerifyLoading] = useState(false);
+
+  const setupRecaptcha = () => {
+    if (!(window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+        size: "invisible",
+      });
+    }
+  };
+
+  const handleSendPhoneOTP = async () => {
+    if (!phoneToVerify) return toast.error("Enter phone number");
+    setIsPhoneVerifyLoading(true);
+    try {
+      setupRecaptcha();
+      const appVerifier = (window as any).recaptchaVerifier;
+      const formattedPhone = phoneToVerify.startsWith('+') ? phoneToVerify : `+91${phoneToVerify}`;
+      const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      setConfirmationResult(result);
+      setPhoneVerifyStep(2);
+      toast.success("OTP sent!");
+    } catch(err:any) {
+      toast.error(err.message);
+    } finally {
+      setIsPhoneVerifyLoading(false);
+    }
+  };
+
+  const handleVerifyPhoneOTP = async () => {
+    if (!verifyOtp) return toast.error("Enter OTP");
+    setIsPhoneVerifyLoading(true);
+    try {
+      await confirmationResult.confirm(verifyOtp);
+      const res = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phoneToVerify }),
+      });
+      if (res.ok) {
+         toast.success("Phone verified successfully!");
+         setIsPhoneVerifyModalOpen(false);
+         if (refreshUser) await refreshUser();
+      } else {
+         toast.error("Failed to save phone number");
+      }
+    } catch(err:any) {
+      toast.error(err.message || "Invalid OTP");
+    } finally {
+      setIsPhoneVerifyLoading(false);
+    }
+  };
 
 
   
@@ -62,6 +121,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
     if (!user) {
       toast.error("Please login to book");
       router.push("/login");
+      return;
+    }
+    if (!user.phone) {
+      toast.error("Please verify your phone number to continue.");
+      setIsPhoneVerifyModalOpen(true);
       return;
     }
     if (!startDate || !endDate) {
@@ -300,6 +364,46 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
           </div>
        </div>
+
+       {/* Recaptcha container for phone auth */}
+       <div id="recaptcha-container"></div>
+
+       <Dialog open={isPhoneVerifyModalOpen} onOpenChange={setIsPhoneVerifyModalOpen}>
+         <DialogContent className="sm:max-w-[400px] rounded-3xl">
+           <DialogHeader>
+             <DialogTitle>Verify Phone Number</DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-4">
+             <p className="text-sm text-gray-500">You need a verified phone number to make a booking.</p>
+             {phoneVerifyStep === 1 ? (
+               <>
+                 <Input 
+                   placeholder="Phone Number (e.g. 9876543210)" 
+                   value={phoneToVerify} 
+                   onChange={(e) => setPhoneToVerify(e.target.value)} 
+                   className="h-12"
+                 />
+                 <Button onClick={handleSendPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
+                   {isPhoneVerifyLoading ? "Sending..." : "Send OTP"}
+                 </Button>
+               </>
+             ) : (
+               <>
+                 <Input 
+                   placeholder="Enter 6-digit OTP" 
+                   value={verifyOtp} 
+                   onChange={(e) => setVerifyOtp(e.target.value)} 
+                   maxLength={6}
+                   className="h-12 tracking-widest text-center text-lg font-bold"
+                 />
+                 <Button onClick={handleVerifyPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
+                   {isPhoneVerifyLoading ? "Verifying..." : "Verify OTP"}
+                 </Button>
+               </>
+             )}
+           </div>
+         </DialogContent>
+       </Dialog>
     </div>
   );
 }

@@ -16,6 +16,8 @@
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "firebase": "^12.12.0",
+    "firebase-admin": "^13.8.0",
     "jose": "^6.2.2",
     "jsonwebtoken": "^9.0.3",
     "leaflet": "^1.9.4",

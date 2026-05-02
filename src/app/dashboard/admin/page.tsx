@@ -26,7 +26,7 @@ export default function AdminDashboard() {
          fetch("/api/admin/profits"),
          fetch("/api/admin/users"),
          fetch("/api/admin/orders"),
-         fetch("/api/listings")
+         fetch("/api/listings?status=all")
       ]);
       if (profitRes.ok) setProfits((await profitRes.json()).totalProfits);
       if (usersRes.ok) setUsersList(await usersRes.json());
@@ -34,6 +34,20 @@ export default function AdminDashboard() {
       if (listingsRes.ok) setListingsList(await listingsRes.json());
     } finally {
       setFetching(false);
+    }
+  };
+
+  const handleUpdateStatus = async (listingId: string, status: 'approved' | 'rejected') => {
+    const res = await fetch(`/api/admin/listings/${listingId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) {
+      toast.success(`Listing ${status}`);
+      fetchAdminData();
+    } else {
+      toast.error(`Failed to update listing status`);
     }
   };
 
@@ -71,6 +85,64 @@ export default function AdminDashboard() {
          <div className="absolute bottom-0 left-0 w-80 h-80 bg-rose-500 opacity-[0.10] rounded-full blur-[80px] -translate-x-1/4 translate-y-1/4 pointer-events-none"></div>
        </div>
 
+       {/* Platform Listings Moderation */}
+       <div className="space-y-6">
+          <div className="flex justify-between items-end px-2">
+            <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">Pending Review & Moderation</h2>
+            <div className="text-sm font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-4 py-1 rounded-full border border-gray-100">Total Listings: {listingsList.length}</div>
+          </div>
+          
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-8">
+             {listingsList.length === 0 ? (
+                <div className="text-center py-20 text-gray-400 font-medium">
+                  <div className="text-5xl mb-4">✨</div>
+                  No active listings found on the platform.
+                </div>
+             ) : (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    {listingsList.map((item: any) => (
+                       <div key={item._id} className="group relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all flex flex-col hover:-translate-y-1">
+                          <div className="h-44 bg-gray-100 relative">
+                             {item.images?.[0] ? (
+                               <img src={item.images[0]} className="w-full h-full object-cover" alt="" />
+                             ) : (
+                               <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs font-bold uppercase">No Image</div>
+                             )}
+                             <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                                item.status === "approved" ? "bg-green-500 text-white" :
+                                item.status === "rejected" ? "bg-red-500 text-white" : "bg-orange-500 text-white"
+                             }`}>
+                                {item.status || "pending"}
+                             </div>
+                          </div>
+                          <div className="p-6 flex flex-col flex-grow">
+                             <h3 className="font-bold text-gray-900 truncate mb-1 text-lg">{item.title}</h3>
+                             <div className="text-[10px] text-gray-400 mb-5 uppercase font-black tracking-widest border-b border-gray-50 pb-4">Seller: {item.ownerId?.email}</div>
+                             
+                             <div className="mt-auto space-y-3">
+                                {(item.status === "pending" || !item.status) && (
+                                   <div className="grid grid-cols-2 gap-3">
+                                      <Button onClick={() => handleUpdateStatus(item._id, 'approved')} className="h-10 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-xl shadow-lg shadow-indigo-100">Approve</Button>
+                                      <Button onClick={() => handleUpdateStatus(item._id, 'rejected')} variant="outline" className="h-10 text-red-600 border-red-200 hover:bg-red-50 text-xs font-bold rounded-xl">Reject</Button>
+                                   </div>
+                                )}
+                                {item.status === "approved" && (
+                                   <Button onClick={() => handleUpdateStatus(item._id, 'rejected')} variant="outline" className="w-full h-10 text-red-600 border-red-200 hover:bg-red-50 text-xs font-bold rounded-xl">Move to Rejected</Button>
+                                )}
+                                {item.status === "rejected" && (
+                                   <Button onClick={() => handleUpdateStatus(item._id, 'approved')} className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-xl shadow-lg shadow-indigo-100">Move to Approved</Button>
+                                )}
+                                <div className="h-px bg-gray-100 my-2" />
+                                <Button onClick={() => handleDeleteListing(item._id)} variant="ghost" className="w-full h-9 text-[10px] text-gray-400 hover:text-red-600 hover:bg-red-50 font-black uppercase tracking-widest rounded-xl transition-colors">Delete Permanently</Button>
+                             </div>
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+             )}
+          </div>
+       </div>
+
        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
           {/* Users List */}
           <div className="space-y-6">
@@ -91,9 +163,9 @@ export default function AdminDashboard() {
              </div>
           </div>
 
-          {/* Orders / Listings */}
+          {/* Recent Transactions */}
           <div className="space-y-6">
-             <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500 px-2">Transactions & Moderation</h2>
+             <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500 px-2">Recent Transactions</h2>
              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-6 max-h-[700px] overflow-y-auto space-y-5">
                 {ordersList.length === 0 && <div className="text-gray-400 text-center py-10 font-medium">No transactions available.</div>}
                 {ordersList.map((o: any) => (
@@ -115,9 +187,6 @@ export default function AdminDashboard() {
                             <span className={`px-3 py-1.5 text-xs font-black rounded-lg border uppercase tracking-wider ${o.paymentStatus === 'Paid' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-100 border-gray-200 text-gray-600'}`}>Pay: {o.paymentStatus}</span>
                             <span className="px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-black uppercase tracking-wider rounded-lg">{o.status}</span>
                          </div>
-                         <div className="text-xs font-black text-gray-500 bg-gray-100 px-4 py-1.5 rounded-lg border border-gray-200 uppercase tracking-widest">
-                            Platform Fee: <span className="text-green-600 text-sm">₹{o.platformFee}</span>
-                         </div>
                       </div>
                       
                       {o.listingId && (
@@ -130,31 +199,6 @@ export default function AdminDashboard() {
                    </div>
                 ))}
              </div>
-          </div>
-       </div>
- 
-       {/* Platform Listings Moderation */}
-       <div className="space-y-6">
-          <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500 px-2">Global Listing Moderation ({listingsList.length})</h2>
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-8">
-             {listingsList.length === 0 ? (
-                <div className="text-center py-10 text-gray-400 font-medium">No active listings found.</div>
-             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                   {listingsList.map((item: any) => (
-                      <div key={item._id} className="group relative bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all">
-                         <div className="h-32 bg-gray-200">
-                            {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover" alt="" />}
-                         </div>
-                         <div className="p-4">
-                            <h3 className="font-bold text-gray-900 truncate mb-1">{item.title}</h3>
-                            <div className="text-xs text-gray-500 mb-3">Owner: {item.ownerId?.email}</div>
-                            <Button onClick={() => handleDeleteListing(item._id)} variant="destructive" className="w-full h-9 text-[10px] font-black uppercase tracking-widest rounded-xl">Delete Listing</Button>
-                         </div>
-                      </div>
-                   ))}
-                </div>
-             )}
           </div>
        </div>
     </div>

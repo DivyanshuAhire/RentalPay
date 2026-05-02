@@ -15,6 +15,7 @@ export interface IListing extends Document {
     lat: number;
     lng: number;
   };
+  status: "pending" | "approved" | "rejected";
 }
 
 const ListingSchema = new Schema<IListing>(
@@ -33,6 +34,7 @@ const ListingSchema = new Schema<IListing>(
       lat: { type: Number, required: true },
       lng: { type: Number, required: true }
     },
+    status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
   },
   { timestamps: true }
 );

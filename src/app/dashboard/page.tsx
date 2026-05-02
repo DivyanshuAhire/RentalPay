@@ -5,9 +5,11 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function UnifiedDashboard() {
   const { user, loading } = useAuth();
+  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [myListings, setMyListings] = useState([]);
   const [fetching, setFetching] = useState(true);
@@ -111,7 +113,10 @@ export default function UnifiedDashboard() {
   };
 
   if (loading || fetching) return <div className="text-center py-24 font-medium text-gray-500">Loading dashboard...</div>;
-  if (!user || user.role !== "USER") return <div className="text-center py-24 font-bold text-red-500">Access Denied. User account required.</div>;
+  if (!loading && (!user || user.role !== "USER")) {
+    router.replace("/login");
+    return null;
+  }
 
   const myRentedClothes = orders.filter((o: any) => o.renterId?._id?.toString() === user?.id?.toString());
   const incomingRequests = orders.filter((o: any) => o.ownerId?._id?.toString() === user?.id?.toString());
@@ -364,7 +369,15 @@ function ListingsSection({ listings, onDelete }: { listings: any[], onDelete: (i
                    <div className="absolute top-2 right-2 px-2 py-1 bg-white/80 backdrop-blur-sm rounded-lg text-[10px] font-black">{item.category}</div>
                 </div>
                 <h3 className="font-bold text-gray-900 mb-1 truncate">{item.title}</h3>
-                <div className="text-lg font-black text-indigo-600 mb-4">₹{item.pricePerDay}<span className="text-[10px] text-gray-400 font-bold">/day</span></div>
+                <div className="flex justify-between items-center mb-4">
+                  <div className="text-lg font-black text-indigo-600">₹{item.pricePerDay}<span className="text-[10px] text-gray-400 font-bold">/day</span></div>
+                  <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter ${
+                    item.status === "approved" ? "bg-green-100 text-green-700" :
+                    item.status === "rejected" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"
+                  }`}>
+                    {item.status || "pending"}
+                  </span>
+                </div>
                 
                 <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center">
                    <Link href={`/listings/${item._id}`} className="text-xs font-bold text-gray-400 hover:text-indigo-600 transition-colors">View Page</Link>

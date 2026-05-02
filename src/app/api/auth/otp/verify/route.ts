@@ -4,7 +4,7 @@ import { VerificationCode } from "@/models/VerificationCode";
 
 export async function POST(req: NextRequest) {
   try {
-    const { identifier, code } = await req.json();
+    const { identifier, code, dontDelete } = await req.json();
 
     if (!identifier || !code) {
       return NextResponse.json({ error: "Identifier and code are required." }, { status: 400 });
@@ -28,9 +28,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Success - code matches and is valid
-    // We can delete it now or keep it until signup is complete.
-    // Let's delete it to prevent reuse.
-    await VerificationCode.deleteOne({ _id: record._id });
+    if (!dontDelete) {
+      await VerificationCode.deleteOne({ _id: record._id });
+    }
 
     return NextResponse.json({ message: "Verification successful.", verified: true }, { status: 200 });
   } catch (error: any) {

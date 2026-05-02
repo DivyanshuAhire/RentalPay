@@ -1,11 +1,11 @@
 import nodemailer from "nodemailer";
 
-export async function sendGmailOTP(email: string, code: string) {
+export async function sendEmail(email: string, subject: string, text: string) {
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_PASS;
   if (!user || !pass) {
-    console.log("[DEV] GMAIL_USER or GMAIL_PASS not set. Simulating email OTP:");
-    console.log(`To: ${email} | OTP: ${code}`);
+    console.log("[DEV] GMAIL_USER or GMAIL_PASS not set. Simulating email:");
+    console.log(`To: ${email} | Subject: ${subject} | Text: ${text}`);
     return true;
   }
 
@@ -15,17 +15,17 @@ export async function sendGmailOTP(email: string, code: string) {
   });
 
   const mailOptions = {
-    from: `RentalPay <${user}>`,
+    from: `StyleP2P <${user}>`,
     to: email,
-    subject: "RentalPay OTP Code",
-    text: `Your OTP code is: ${code}`,
+    subject: subject,
+    text: text,
   };
 
   try {
     await transporter.sendMail(mailOptions);
     return true;
   } catch (error) {
-    console.error("[Gmail SMTP] Email OTP failed:", error);
+    console.error("[Gmail SMTP] Email failed:", error);
     return false;
   }
 }

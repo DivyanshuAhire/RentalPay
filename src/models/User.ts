@@ -7,7 +7,11 @@ export interface IUser extends Document {
   role: "USER" | "ADMIN";
   phone?: string;
   address?: string;
+  gender?: string;
+  dob?: Date;
   walletBalance: number;
+  googleId?: string;
+  firebaseUids?: string[];
 }
 
 const UserSchema = new Schema<IUser>(
@@ -18,7 +22,11 @@ const UserSchema = new Schema<IUser>(
     role: { type: String, enum: ["USER", "ADMIN"], default: "USER" },
     phone: { type: String },
     address: { type: String },
+    gender: { type: String, enum: ["Male", "Female", "Other", "Prefer not to say"] },
+    dob: { type: Date },
     walletBalance: { type: Number, default: 0 },
+    googleId: { type: String },
+    firebaseUids: [{ type: String }],
   },
   { timestamps: true }
 );
@@ -33,4 +41,7 @@ UserSchema.index(
   { unique: true, partialFilterExpression: { phone: { $type: "string" } } }
 );
 
-export const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+export const User: Model<IUser> = mongoose.model<IUser>("User", UserSchema);

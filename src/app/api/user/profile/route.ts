@@ -35,9 +35,17 @@ export async function PUT(req: NextRequest) {
     const userId = payload.id as string;
 
     const body = await req.json();
-    const { name, phone, address } = body;
+    const { name, email, phone, address, gender, dob } = body;
 
-    const user = await User.findByIdAndUpdate(userId, { name, phone, address }, { new: true }).select("-password");
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email.toLowerCase();
+    if (phone !== undefined) updateData.phone = phone;
+    if (address !== undefined) updateData.address = address;
+    if (gender !== undefined) updateData.gender = gender;
+    if (dob !== undefined) updateData.dob = dob;
+
+    const user = await User.findByIdAndUpdate(userId, updateData, { new: true }).select("-password");
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     return NextResponse.json({ message: "Profile updated", user }, { status: 200 });
