@@ -44,6 +44,10 @@ export default function ProfilePage() {
   const [isPassLoading, setIsPassLoading] = useState(false);
 
   const setupRecaptcha = () => {
+    if (!auth) {
+      toast.error("Firebase is not configured. Please add NEXT_PUBLIC_FIREBASE_API_KEY to your environment.");
+      return;
+    }
     if (!(window as any).recaptchaVerifier) {
       (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
         size: "invisible",

@@ -11,14 +11,19 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Only initialize if we have the configuration to avoid crashing during build
-let app;
-if (firebaseConfig.apiKey) {
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-} else {
-  // Mock app for build time
-  app = {} as any;
+// Only initialize if we have the configuration
+const isConfigured = !!firebaseConfig.apiKey && firebaseConfig.apiKey !== "undefined";
+
+let app: any = null;
+let auth: any = null;
+
+if (isConfigured) {
+  try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+  } catch (err) {
+    console.error("Firebase initialization error:", err);
+  }
 }
 
-export const auth = firebaseConfig.apiKey ? getAuth(app) : {} as any;
-export { app };
+export { app, auth };
