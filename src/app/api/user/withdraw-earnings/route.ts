@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { Order } from "@/models/Order";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey123";
+import { verifyJWT } from "@/lib/jwt";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,9 +9,9 @@ export async function POST(req: NextRequest) {
     const token = req.cookies.get("auth-token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    const userId = payload.id as string;
+    const payload = await verifyJWT(token);
+    if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userId = payload.id;
 
     // Find all completed orders where earnings are "Available"
     const availableOrders = await Order.find({

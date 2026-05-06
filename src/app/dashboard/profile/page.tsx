@@ -286,8 +286,18 @@ export default function ProfilePage() {
     }
   };
 
+  const refundableOrders = orders.filter(o => o.renterId?._id === authUser?.id && o.depositRefundStatus !== "Pending");
+  const totalRefundable = refundableOrders.reduce((sum, o) => sum + (o.depositRefundStatus === "Available" ? o.securityDeposit : 0), 0);
+  const totalLocked = orders.filter(o => o.renterId?._id === authUser?.id && o.depositRefundStatus === "Pending")
+    .reduce((sum, o) => sum + o.securityDeposit, 0);
+
+  const earningOrders = orders.filter(o => o.ownerId?._id === authUser?.id);
+  const totalAvailableEarnings = earningOrders.reduce((sum, o) => sum + (o.ownerEarningStatus === "Available" ? o.ownerEarning : 0), 0);
+  const totalLockedEarnings = earningOrders.filter(o => o.ownerEarningStatus === "Pending")
+    .reduce((sum, o) => sum + o.ownerEarning, 0);
+
   const handleWithdrawEarnings = async () => {
-    if (totalEarnings <= 0) return toast.error("No earnings available for withdrawal.");
+    if (totalAvailableEarnings <= 0) return toast.error("No earnings available for withdrawal.");
     if (!profile.bankDetails && !profile.upiId) {
       toast.error("Please connect a payout method first.");
       setIsBankModalOpen(true);
@@ -376,15 +386,6 @@ export default function ProfilePage() {
     }
   };
 
-  const refundableOrders = orders.filter(o => o.renterId?._id === authUser?.id && o.depositRefundStatus !== "Pending");
-  const totalRefundable = refundableOrders.reduce((sum, o) => sum + (o.depositRefundStatus === "Available" ? o.securityDeposit : 0), 0);
-  const totalLocked = orders.filter(o => o.renterId?._id === authUser?.id && o.depositRefundStatus === "Pending")
-    .reduce((sum, o) => sum + o.securityDeposit, 0);
-
-  const earningOrders = orders.filter(o => o.ownerId?._id === authUser?.id);
-  const totalAvailableEarnings = earningOrders.reduce((sum, o) => sum + (o.ownerEarningStatus === "Available" ? o.ownerEarning : 0), 0);
-  const totalLockedEarnings = earningOrders.filter(o => o.ownerEarningStatus === "Pending")
-    .reduce((sum, o) => sum + o.ownerEarning, 0);
 
   if (authLoading || loading) return <div className="text-center py-24 text-gray-400 font-medium">Loading profile...</div>;
   if (!profile) return <div className="text-center py-24 text-red-500 font-bold">Could not load profile. Please try again.</div>;
