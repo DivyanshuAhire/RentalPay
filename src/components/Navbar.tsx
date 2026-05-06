@@ -22,7 +22,7 @@ export function Navbar() {
           {user && <Link href="/dashboard/profile"><Button variant="ghost">Profile</Button></Link>}
           {user ? (
             <>
-              {user.role === "USER" && <Link href="/dashboard"><Button variant="ghost">Dashboard</Button></Link>}
+              {(user.role === "USER" || user.role === "TESTER") && <Link href="/dashboard"><Button variant="ghost">Dashboard</Button></Link>}
               {user.role === "ADMIN" && <Link href="/dashboard/admin"><Button variant="ghost">Admin Panel</Button></Link>}
               <Button variant="outline" onClick={logout}>Logout</Button>
             </>
@@ -49,7 +49,7 @@ export function Navbar() {
           {user && <Link href="/dashboard/profile" onClick={() => setMenuOpen(false)}><Button variant="ghost" className="w-full justify-start">Profile</Button></Link>}
           {user ? (
             <>
-              {user.role === "USER" && <Link href="/dashboard" onClick={() => setMenuOpen(false)}><Button variant="ghost" className="w-full justify-start">Dashboard</Button></Link>}
+              {(user.role === "USER" || user.role === "TESTER") && <Link href="/dashboard" onClick={() => setMenuOpen(false)}><Button variant="ghost" className="w-full justify-start">Dashboard</Button></Link>}
               {user.role === "ADMIN" && <Link href="/dashboard/admin" onClick={() => setMenuOpen(false)}><Button variant="ghost" className="w-full justify-start">Admin Panel</Button></Link>}
               <Button variant="outline" className="w-full justify-start" onClick={() => { setMenuOpen(false); logout(); }}>Logout</Button>
             </>

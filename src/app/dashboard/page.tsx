@@ -16,7 +16,7 @@ export default function UnifiedDashboard() {
   const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (user && user.role === "USER") {
+    if (user && (user.role === "USER" || user.role === "TESTER")) {
       fetchOrders();
       fetchUserListings();
     } else if (!loading) {
@@ -113,7 +113,7 @@ export default function UnifiedDashboard() {
   };
 
   if (loading || fetching) return <div className="text-center py-24 font-medium text-gray-500">Loading dashboard...</div>;
-  if (!loading && (!user || user.role !== "USER")) {
+  if (!loading && (!user || (user.role !== "USER" && user.role !== "TESTER"))) {
     router.replace("/login");
     return null;
   }

@@ -10,7 +10,7 @@ export interface User {
   gender?: string;
   dob?: string;
   address?: string;
-  role: "USER" | "OWNER" | "ADMIN";
+  role: "USER" | "OWNER" | "ADMIN" | "TESTER";
 }
 
 interface AuthContextType {

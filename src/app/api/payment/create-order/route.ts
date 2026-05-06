@@ -11,11 +11,8 @@ export async function POST(req: Request) {
     const order = await Order.findById(orderId).populate("renterId");
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
-    // BYPASS FOR TESTER SIMULATION
     const renter = order.renterId as any;
-    const renterEmail = renter?.email?.toString().toLowerCase();
-    const renterName = renter?.name?.toString().trim().toLowerCase();
-    if (renterEmail === "tester@stylep2p.com" || renterName === "tester") {
+    if (renter?.role === "TESTER") {
       order.razorpayOrderId = "mock_order_" + order._id;
       await order.save();
       return NextResponse.json({ 
