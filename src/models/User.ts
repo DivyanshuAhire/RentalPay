@@ -12,6 +12,12 @@ export interface IUser extends Document {
   walletBalance: number;
   googleId?: string;
   firebaseUids?: string[];
+  bankDetails?: {
+    accountNumber: string;
+    ifscCode: string;
+    beneficiaryName: string;
+  };
+  upiId?: string;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -27,6 +33,12 @@ const UserSchema = new Schema<IUser>(
     walletBalance: { type: Number, default: 0 },
     googleId: { type: String },
     firebaseUids: [{ type: String }],
+    bankDetails: {
+      accountNumber: { type: String },
+      ifscCode: { type: String },
+      beneficiaryName: { type: String },
+    },
+    upiId: { type: String },
   },
   { timestamps: true }
 );

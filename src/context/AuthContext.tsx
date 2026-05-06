@@ -11,6 +11,12 @@ export interface User {
   dob?: string;
   address?: string;
   role: "USER" | "OWNER" | "ADMIN" | "TESTER";
+  bankDetails?: {
+    accountNumber: string;
+    ifscCode: string;
+    beneficiaryName: string;
+  };
+  upiId?: string;
 }
 
 interface AuthContextType {
@@ -51,6 +57,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             dob: data.dob,
             address: data.address,
             role: data.role,
+            bankDetails: data.bankDetails,
+            upiId: data.upiId,
           };
           setUser(userData);
           localStorage.setItem("p2p_user", JSON.stringify(userData));
@@ -87,6 +95,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           dob: data.dob,
           address: data.address,
           role: data.role,
+          bankDetails: data.bankDetails,
+          upiId: data.upiId,
         };
         setUser(userData);
         localStorage.setItem("p2p_user", JSON.stringify(userData));

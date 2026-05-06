@@ -42,6 +42,17 @@ export default function ProfilePage() {
   const [passChangeOtp, setPassChangeOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isPassLoading, setIsPassLoading] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"deposits" | "earnings">("deposits");
+
+  // Bank Details States
+  const [isBankModalOpen, setIsBankModalOpen] = useState(false);
+  const [payoutType, setPayoutType] = useState<"bank" | "upi" | null>(null);
+  const [accNumber, setAccNumber] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [beneficiaryName, setBeneficiaryName] = useState("");
+  const [upiId, setUpiId] = useState("");
+  const [isSavingBank, setIsSavingBank] = useState(false);
 
   const setupRecaptcha = () => {
     if (!auth) {
@@ -235,6 +246,93 @@ export default function ProfilePage() {
     }
   };
 
+  const handleSaveBankDetails = async () => {
+    setIsSavingBank(true);
+    try {
+      const body: any = {};
+      if (payoutType === "bank") {
+        if (!accNumber || !ifscCode || !beneficiaryName) {
+          throw new Error("Please fill all bank details");
+        }
+        body.bankDetails = {
+          accountNumber: accNumber,
+          ifscCode: ifscCode,
+          beneficiaryName: beneficiaryName,
+        };
+      } else if (payoutType === "upi") {
+        if (!upiId) throw new Error("Please enter UPI ID");
+        body.upiId = upiId;
+      }
+
+      const res = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        toast.success("Payout details saved successfully!");
+        setIsBankModalOpen(false);
+        fetchProfile();
+        if (refreshUser) refreshUser();
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to save details");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsSavingBank(false);
+    }
+  };
+
+  const handleWithdrawEarnings = async () => {
+    if (totalEarnings <= 0) return toast.error("No earnings available for withdrawal.");
+    if (!profile.bankDetails && !profile.upiId) {
+      toast.error("Please connect a payout method first.");
+      setIsBankModalOpen(true);
+      return;
+    }
+
+    setIsWithdrawing(true);
+    try {
+      const res = await fetch("/api/user/withdraw-earnings", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(data.message);
+        fetchOrders();
+      } else {
+        toast.error(data.error || "Failed to request withdrawal");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
+  const handleWithdrawDeposit = async (orderId: string) => {
+    setIsWithdrawing(true);
+    try {
+      const res = await fetch("/api/user/withdraw-deposit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(data.message);
+        fetchOrders();
+      } else {
+        toast.error(data.error || "Failed to request refund");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
   useEffect(() => {
     if (authLoading) return;
     if (!authUser) {
@@ -282,6 +380,11 @@ export default function ProfilePage() {
   const totalRefundable = refundableOrders.reduce((sum, o) => sum + (o.depositRefundStatus === "Available" ? o.securityDeposit : 0), 0);
   const totalLocked = orders.filter(o => o.renterId?._id === authUser?.id && o.depositRefundStatus === "Pending")
     .reduce((sum, o) => sum + o.securityDeposit, 0);
+
+  const earningOrders = orders.filter(o => o.ownerId?._id === authUser?.id);
+  const totalAvailableEarnings = earningOrders.reduce((sum, o) => sum + (o.ownerEarningStatus === "Available" ? o.ownerEarning : 0), 0);
+  const totalLockedEarnings = earningOrders.filter(o => o.ownerEarningStatus === "Pending")
+    .reduce((sum, o) => sum + o.ownerEarning, 0);
 
   if (authLoading || loading) return <div className="text-center py-24 text-gray-400 font-medium">Loading profile...</div>;
   if (!profile) return <div className="text-center py-24 text-red-500 font-bold">Could not load profile. Please try again.</div>;
@@ -446,56 +549,227 @@ export default function ProfilePage() {
             <CardDescription className="text-indigo-100 font-medium opacity-90">Manage your deposits and earnings</CardDescription>
           </CardHeader>
           <CardContent className="p-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 text-center sm:text-left">
-                <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 justify-center sm:justify-start">
-                  <Clock size={14} /> Locked in Rentals
-                </div>
-                <div className="text-3xl font-black text-gray-900">₹{totalLocked}</div>
-                <p className="text-[10px] text-gray-500 mt-2 font-bold leading-tight">These deposits are held for active or ongoing rentals.</p>
-              </div>
-              <div className="bg-green-50/50 rounded-3xl p-6 border border-green-100 text-center sm:text-left relative overflow-hidden group">
-                <div className="relative z-10">
-                  <div className="text-xs font-black text-green-600 uppercase tracking-widest mb-2 flex items-center gap-2 justify-center sm:justify-start">
-                    <CheckCircle size={14} /> Refundable Balance
-                  </div>
-                  <div className="text-3xl font-black text-green-600">₹{totalRefundable}</div>
-                  <p className="text-[10px] text-green-700/70 mt-2 font-bold leading-tight">Amount available to withdraw to your bank account.</p>
-                </div>
-                <div className="absolute right-[-10%] bottom-[-10%] text-green-100 group-hover:scale-110 transition-transform">
-                  <Wallet size={80} />
-                </div>
-              </div>
+            <div className="flex gap-4 p-1 bg-gray-100 rounded-2xl mb-8">
+               <button 
+                 onClick={() => setActiveTab("deposits")}
+                 className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === "deposits" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+               >
+                 Security Deposits
+               </button>
+               <button 
+                 onClick={() => setActiveTab("earnings")}
+                 className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === "earnings" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+               >
+                 Outfit Earnings
+               </button>
             </div>
 
-            <div className="mt-8 space-y-4">
-              <h3 className="font-bold text-gray-900 flex items-center gap-2">Recent Deposit Activity</h3>
-              {refundableOrders.length === 0 ? (
-                <p className="text-sm text-gray-400 italic">No deposit history found.</p>
-              ) : (
-                <div className="space-y-3">
-                  {refundableOrders.slice(0, 5).map((o: any) => (
-                    <div key={o._id} className="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl hover:shadow-sm transition-shadow">
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">{o.listingId?.title || "Rental Item"}</div>
-                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">ID: {o._id.slice(-8)}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-black text-indigo-600">₹{o.securityDeposit}</div>
-                        <div className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block ${o.depositRefundStatus === "Completed" ? "bg-green-100 text-green-700" :
-                            o.depositRefundStatus === "Requested" ? "bg-orange-100 text-orange-700" : "bg-indigo-100 text-indigo-700"
-                          }`}>
-                          {o.depositRefundStatus}
-                        </div>
-                      </div>
+            {activeTab === "deposits" ? (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 text-center sm:text-left">
+                    <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 justify-center sm:justify-start">
+                      <Clock size={14} /> Locked in Rentals
                     </div>
-                  ))}
+                    <div className="text-3xl font-black text-gray-900">₹{totalLocked}</div>
+                    <p className="text-[10px] text-gray-500 mt-2 font-bold leading-tight">These deposits are held for active or ongoing rentals.</p>
+                  </div>
+                  <div className="bg-green-50/50 rounded-3xl p-6 border border-green-100 text-center sm:text-left relative overflow-hidden group">
+                    <div className="relative z-10">
+                      <div className="text-xs font-black text-green-600 uppercase tracking-widest mb-2 flex items-center gap-2 justify-center sm:justify-start">
+                        <CheckCircle size={14} /> Refundable Balance
+                      </div>
+                      <div className="text-3xl font-black text-green-600">₹{totalRefundable}</div>
+                      <p className="text-[10px] text-green-700/70 mt-2 font-bold leading-tight">Amount available to withdraw to your bank account.</p>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                <div className="space-y-4">
+                  <h3 className="font-bold text-gray-900 flex items-center gap-2">Recent Deposit Activity</h3>
+                  {refundableOrders.length === 0 ? (
+                    <p className="text-sm text-gray-400 italic">No deposit history found.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {refundableOrders.slice(0, 5).map((o: any) => (
+                        <div key={o._id} className="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl hover:shadow-sm transition-shadow">
+                          <div>
+                            <div className="text-sm font-bold text-gray-900">{o.listingId?.title || "Rental Item"}</div>
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">ID: {o._id.slice(-8)}</div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <div className="text-sm font-black text-indigo-600">₹{o.securityDeposit}</div>
+                              <div className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block ${o.depositRefundStatus === "Completed" ? "bg-green-100 text-green-700" :
+                                  o.depositRefundStatus === "Requested" ? "bg-orange-100 text-orange-700" : "bg-indigo-100 text-indigo-700"
+                                }`}>
+                                {o.depositRefundStatus}
+                              </div>
+                            </div>
+                            {o.depositRefundStatus === "Available" && (
+                              <Button 
+                                onClick={() => handleWithdrawDeposit(o._id)} 
+                                disabled={isWithdrawing}
+                                size="sm" 
+                                className="bg-indigo-600 text-[10px] font-black uppercase tracking-widest h-8"
+                              >
+                                {isWithdrawing ? "..." : "Withdraw"}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 text-center sm:text-left">
+                    <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 justify-center sm:justify-start">
+                      <Clock size={14} /> Pending Earnings
+                    </div>
+                    <div className="text-3xl font-black text-gray-900">₹{totalLockedEarnings}</div>
+                    <p className="text-[10px] text-gray-500 mt-2 font-bold leading-tight">Income from ongoing rentals, released after return.</p>
+                  </div>
+                  <div className="bg-indigo-50/50 rounded-3xl p-6 border border-indigo-100 text-center sm:text-left relative overflow-hidden group">
+                    <div className="relative z-10">
+                      <div className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-2 justify-center sm:justify-start">
+                        <CheckCircle size={14} /> Available Earnings
+                      </div>
+                      <div className="text-3xl font-black text-indigo-600">₹{totalAvailableEarnings}</div>
+                      <p className="text-[10px] text-indigo-700/70 mt-2 font-bold leading-tight">Pure profit from your listings ready for withdrawal.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-bold text-gray-900 flex items-center gap-2">Outfit Rental History</h3>
+                  {earningOrders.length === 0 ? (
+                    <p className="text-sm text-gray-400 italic">No earnings found yet. List an outfit to start earning!</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {earningOrders.slice(0, 5).map((o: any) => (
+                        <div key={o._id} className="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl hover:shadow-sm transition-shadow">
+                          <div>
+                            <div className="text-sm font-bold text-gray-900">{o.listingId?.title || "Rental Item"}</div>
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Renter: {o.renterId?.name || "Anonymous"}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-black text-green-600">+₹{o.ownerEarning}</div>
+                            <div className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block ${o.ownerEarningStatus === "Completed" ? "bg-green-100 text-green-700" :
+                                o.ownerEarningStatus === "Requested" ? "bg-orange-100 text-orange-700" : "bg-indigo-100 text-indigo-700"
+                              }`}>
+                              {o.ownerEarningStatus}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {totalAvailableEarnings > 0 && (
+                     <Button 
+                        onClick={handleWithdrawEarnings} 
+                        disabled={isWithdrawing}
+                        className="w-full h-14 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-black text-lg shadow-lg shadow-green-100 mt-4"
+                     >
+                        {isWithdrawing ? "Processing..." : `Withdraw Earnings (₹${totalAvailableEarnings})`}
+                     </Button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 pt-8 border-t border-gray-100">
+              <div className="flex flex-col gap-3">
+                 <Button 
+                    onClick={() => {
+                      setPayoutType(profile.bankDetails ? "bank" : (profile.upiId ? "upi" : null));
+                      setAccNumber(profile.bankDetails?.accountNumber || "");
+                      setIfscCode(profile.bankDetails?.ifscCode || "");
+                      setBeneficiaryName(profile.bankDetails?.beneficiaryName || "");
+                      setUpiId(profile.upiId || "");
+                      setIsBankModalOpen(true);
+                    }}
+                    className="bg-indigo-600 text-white rounded-2xl h-14 font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all text-lg"
+                  >
+                    { (profile.bankDetails || profile.upiId) ? "Update Payout Method" : "Connect Bank/UPI" }
+                 </Button>
+              </div>
             </div>
-          </CardContent>
+           </CardContent>
         </Card>
       </div>
+
+      {/* Bank/UPI Modal */}
+      <Dialog open={isBankModalOpen} onOpenChange={setIsBankModalOpen}>
+        <DialogContent className="sm:max-w-[450px] rounded-3xl p-0 overflow-hidden border-0 shadow-2xl">
+           <div className="bg-indigo-600 p-8 text-white">
+              <h2 className="text-2xl font-black">Payout Method</h2>
+              <p className="text-indigo-100 opacity-80 text-sm font-medium">Where should we send your earnings?</p>
+           </div>
+           
+           <div className="p-8 space-y-6">
+              <div className="flex gap-4">
+                 <button 
+                   onClick={() => setPayoutType("bank")}
+                   className={`flex-1 py-4 rounded-2xl border-2 transition-all font-bold flex flex-col items-center gap-2 ${payoutType === "bank" ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-gray-100 text-gray-400 hover:border-gray-200"}`}
+                 >
+                   <Shield size={20} />
+                   Bank Account
+                 </button>
+                 <button 
+                   onClick={() => setPayoutType("upi")}
+                   className={`flex-1 py-4 rounded-2xl border-2 transition-all font-bold flex flex-col items-center gap-2 ${payoutType === "upi" ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-gray-100 text-gray-400 hover:border-gray-200"}`}
+                 >
+                   <Wallet size={20} />
+                   UPI ID
+                 </button>
+              </div>
+
+              {payoutType === "bank" && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                   <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Beneficiary Name</label>
+                      <Input placeholder="As per bank records" value={beneficiaryName} onChange={(e) => setBeneficiaryName(e.target.value)} className="h-12 rounded-xl" />
+                   </div>
+                   <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Account Number</label>
+                      <Input placeholder="Enter account number" value={accNumber} onChange={(e) => setAccNumber(e.target.value)} className="h-12 rounded-xl" />
+                   </div>
+                   <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">IFSC Code</label>
+                      <Input placeholder="SBIN0001234" value={ifscCode} onChange={(e) => setIfscCode(e.target.value.toUpperCase())} className="h-12 rounded-xl" />
+                   </div>
+                </div>
+              )}
+
+              {payoutType === "upi" && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                   <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">UPI ID</label>
+                      <Input placeholder="username@okaxis" value={upiId} onChange={(e) => setUpiId(e.target.value)} className="h-12 rounded-xl" />
+                   </div>
+                   <p className="text-[11px] text-gray-400 font-medium px-1 leading-relaxed">
+                     Make sure your UPI ID is correct. Payments will be sent directly to this ID.
+                   </p>
+                </div>
+              )}
+
+              <div className="pt-2">
+                 <Button 
+                   onClick={handleSaveBankDetails} 
+                   disabled={isSavingBank || !payoutType} 
+                   className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-black text-lg shadow-xl shadow-indigo-100"
+                 >
+                   {isSavingBank ? "Saving..." : "Save Payout Details"}
+                 </Button>
+              </div>
+           </div>
+        </DialogContent>
+      </Dialog>
 
       <div id="recaptcha-container"></div>
       <Dialog open={isPhoneVerifyModalOpen} onOpenChange={setIsPhoneVerifyModalOpen}>
