@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { User } from "@/models/User";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey123";
+import { verifyJWT } from "@/lib/jwt";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,9 +10,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    const userId = payload.id as string;
+    const payload = await verifyJWT(token);
+    if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userId = payload.id;
 
     await dbConnect();
     const user = await User.findById(userId).select("-password");

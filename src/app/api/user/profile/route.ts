@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { User } from "@/models/User";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey123";
+import { verifyJWT } from "@/lib/jwt";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,9 +9,9 @@ export async function GET(req: NextRequest) {
     const token = req.cookies.get("auth-token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    const userId = payload.id as string;
+    const payload = await verifyJWT(token);
+    if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userId = payload.id;
 
     const user = await User.findById(userId).select("-password");
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -30,12 +28,12 @@ export async function PUT(req: NextRequest) {
     const token = req.cookies.get("auth-token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    const userId = payload.id as string;
+    const payload = await verifyJWT(token);
+    if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userId = payload.id;
 
     const body = await req.json();
-    const { name, email, phone, address, gender, dob } = body;
+    const { name, email, phone, address, gender, dob, bankDetails, upiId } = body;
 
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
@@ -44,6 +42,8 @@ export async function PUT(req: NextRequest) {
     if (address !== undefined) updateData.address = address;
     if (gender !== undefined) updateData.gender = gender;
     if (dob !== undefined) updateData.dob = dob;
+    if (bankDetails !== undefined) updateData.bankDetails = bankDetails;
+    if (upiId !== undefined) updateData.upiId = upiId;
 
     const user = await User.findByIdAndUpdate(userId, updateData, { new: true }).select("-password");
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
