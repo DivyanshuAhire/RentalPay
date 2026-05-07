@@ -177,10 +177,8 @@ export default function AdminDashboard() {
                               
                               <div className="mt-auto space-y-3">
                                  <Dialog open={editingListing?._id === item._id} onOpenChange={(open) => !open && setEditingListing(null)}>
-                                    <DialogTrigger asChild>
-                                       <Button onClick={() => handleOpenEdit(item)} variant="outline" className="w-full h-10 border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs font-bold rounded-xl">
-                                          Edit Details
-                                       </Button>
+                                    <DialogTrigger render={<Button onClick={() => handleOpenEdit(item)} variant="outline" className="w-full h-10 border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs font-bold rounded-xl" />}>
+                                       Edit Details
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[500px] rounded-3xl">
                                        <DialogHeader>
@@ -198,7 +196,7 @@ export default function AdminDashboard() {
                                           <div className="grid grid-cols-2 gap-4">
                                              <div className="space-y-2">
                                                 <Label>Category</Label>
-                                                <Select value={editForm.category} onValueChange={(val) => setEditForm({...editForm, category: val})}>
+                                                <Select value={editForm.category} onValueChange={(val) => setEditForm({...editForm, category: val || ""})}>
                                                    <SelectTrigger><SelectValue /></SelectTrigger>
                                                    <SelectContent>
                                                       <SelectItem value="Casual">Casual</SelectItem>
@@ -210,7 +208,7 @@ export default function AdminDashboard() {
                                              </div>
                                              <div className="space-y-2">
                                                 <Label>Gender</Label>
-                                                <Select value={editForm.gender} onValueChange={(val) => setEditForm({...editForm, gender: val})}>
+                                                <Select value={editForm.gender} onValueChange={(val) => setEditForm({...editForm, gender: val || ""})}>
                                                    <SelectTrigger><SelectValue /></SelectTrigger>
                                                    <SelectContent>
                                                       <SelectItem value="Men">Men</SelectItem>
@@ -223,7 +221,7 @@ export default function AdminDashboard() {
                                           <div className="grid grid-cols-3 gap-4">
                                              <div className="space-y-2">
                                                 <Label>Size</Label>
-                                                <Select value={editForm.size} onValueChange={(val) => setEditForm({...editForm, size: val})}>
+                                                <Select value={editForm.size} onValueChange={(val) => setEditForm({...editForm, size: val || ""})}>
                                                    <SelectTrigger><SelectValue /></SelectTrigger>
                                                    <SelectContent>
                                                       <SelectItem value="S">S</SelectItem>

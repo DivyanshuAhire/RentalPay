@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, use } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -180,7 +181,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       }
 
       const options = {
-        key: 'rzp_test_placeholder',
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: rzpData.amount,
         currency: rzpData.currency,
         name: "RentalPay",

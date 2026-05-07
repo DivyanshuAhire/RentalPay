@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import dbConnect from "@/lib/db";
 import { Order } from "@/models/Order";
+import { User } from "@/models/User";
 
 export async function POST(req: Request) {
   try {
@@ -29,24 +30,30 @@ export async function POST(req: Request) {
 
     // Amount in paise (multiply by 100)
     const amountInPaise = Math.round(order.totalPrice * 100);
-    const ownerEarningInPaise = Math.round((order.ownerEarning + order.securityDeposit) * 100);
+    
+    const owner = await User.findById(order.ownerId);
 
-    const options = {
+    const options: any = {
       amount: amountInPaise,
       currency: "INR",
       receipt: `receipt_${order._id}`,
-      transfers: [
+    };
+
+    // If owner has a linked Razorpay account, setup the transfer (on hold)
+    if (owner?.razorpayAccountId) {
+      options.transfers = [
         {
-          account: "acc_placeholderForOwner", // Fetched from user profile connected account in production
-          amount: ownerEarningInPaise,
+          account: owner.razorpayAccountId,
+          amount: Math.round(order.ownerEarning * 100),
           currency: "INR",
           notes: {
-            reason: "P2P Rental Payment",
+            reason: "Rental Payment",
+            orderId: order._id.toString()
           },
-          on_hold: false
+          on_hold: true // Keep money with platform until rental is successful
         }
-      ]
-    };
+      ];
+    }
 
     const razorpayOrder = await razorpay.orders.create(options);
     

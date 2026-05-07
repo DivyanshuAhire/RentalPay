@@ -18,6 +18,7 @@ export interface IUser extends Document {
     beneficiaryName: string;
   };
   upiId?: string;
+  razorpayAccountId?: string;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -39,6 +40,7 @@ const UserSchema = new Schema<IUser>(
       beneficiaryName: { type: String },
     },
     upiId: { type: String },
+    razorpayAccountId: { type: String },
   },
   { timestamps: true }
 );
