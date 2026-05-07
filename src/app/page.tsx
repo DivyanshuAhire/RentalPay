@@ -8,10 +8,11 @@ export default function Home() {
   const [listings, setListings] = useState([]);
   const [category, setCategory] = useState("All");
   const [size, setSize] = useState("All");
+  const [gender, setGender] = useState("All");
 
   useEffect(() => {
     fetchListings();
-  }, [category, size]);
+  }, [category, size, gender]);
 
   const handleCategoryChange = (value: string | null) => {
     if (value !== null) setCategory(value);
@@ -21,10 +22,15 @@ export default function Home() {
     if (value !== null) setSize(value);
   };
 
+  const handleGenderChange = (value: string | null) => {
+    if (value !== null) setGender(value);
+  };
+
   const fetchListings = async () => {
     let url = "/api/listings?";
     if (category !== "All") url += `category=${category}&`;
     if (size !== "All") url += `size=${size}&`;
+    if (gender !== "All") url += `gender=${gender}&`;
     const res = await fetch(url);
     const data = await res.json();
     if (res.ok) setListings(data);
@@ -66,6 +72,20 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <label className="text-sm font-semibold text-gray-700 mb-2 block">Gender</label>
+              <Select value={gender} onValueChange={handleGenderChange}>
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="All Genders" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Genders</SelectItem>
+                  <SelectItem value="Men">Men</SelectItem>
+                  <SelectItem value="Women">Women</SelectItem>
+                  <SelectItem value="Unisex">Unisex</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
@@ -102,8 +122,13 @@ export default function Home() {
                     ) : (
                        <div className="flex items-center justify-center h-full text-gray-400 text-sm font-medium">No Image Uploaded</div>
                     )}
-                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm border border-gray-100">
-                      Size {item.size}
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                      <div className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-indigo-700 shadow-sm border border-gray-100 uppercase tracking-wider">
+                        {item.gender || "Unisex"}
+                      </div>
+                      <div className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-gray-800 shadow-sm border border-gray-100">
+                        Size {item.size}
+                      </div>
                     </div>
                   </div>
                   <CardContent className="p-5">

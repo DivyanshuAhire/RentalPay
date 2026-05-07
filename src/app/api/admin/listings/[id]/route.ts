@@ -23,12 +23,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
-    const { status } = await req.json();
-    if (!["approved", "rejected"].includes(status)) {
-      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-    }
+    const { status, title, description, category, size, gender, pricePerDay, deposit } = await req.json();
+    
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+    if (category) updateData.category = category;
+    if (size) updateData.size = size;
+    if (gender) updateData.gender = gender;
+    if (pricePerDay !== undefined) updateData.pricePerDay = Number(pricePerDay);
+    if (deposit !== undefined) updateData.deposit = Number(deposit);
 
-    const listing = await Listing.findByIdAndUpdate(id, { status }, { new: true }).populate("ownerId");
+    const listing = await Listing.findByIdAndUpdate(id, updateData, { new: true }).populate("ownerId");
     if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
 
     // Send notification email to owner

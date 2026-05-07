@@ -366,7 +366,10 @@ function ListingsSection({ listings, onDelete }: { listings: any[], onDelete: (i
                    ) : (
                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
                    )}
-                   <div className="absolute top-2 right-2 px-2 py-1 bg-white/80 backdrop-blur-sm rounded-lg text-[10px] font-black">{item.category}</div>
+                   <div className="absolute top-2 right-2 flex gap-1">
+                      <div className="px-2 py-1 bg-white/80 backdrop-blur-sm rounded-lg text-[10px] font-black">{item.gender}</div>
+                      <div className="px-2 py-1 bg-white/80 backdrop-blur-sm rounded-lg text-[10px] font-black">{item.category}</div>
+                   </div>
                 </div>
                 <h3 className="font-bold text-gray-900 mb-1 truncate">{item.title}</h3>
                 <div className="flex justify-between items-center mb-4">

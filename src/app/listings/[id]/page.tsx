@@ -9,8 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
-import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { Share2 } from "lucide-react";
 
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
@@ -225,6 +225,25 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
     }
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: listing.title,
+      text: `Check out this ${listing.title} on RentalPay!`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (err) {
+      console.error("Error sharing", err);
+    }
+  };
+
   if (!listing) return <div className="text-center py-20 font-medium text-gray-500">Loading listing details...</div>;
 
   return (
@@ -243,13 +262,23 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
         {/* Details */}
         <div className="space-y-6">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 leading-tight">{listing.title}</h1>
-            <p className="text-lg text-gray-500 font-medium">{listing.category}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 leading-tight">{listing.title}</h1>
+              <p className="text-lg text-gray-500 font-medium">{listing.category}</p>
+            </div>
+            <Button variant="outline" size="icon" onClick={handleShare} className="rounded-full h-12 w-12 border-gray-200 hover:bg-gray-50">
+              <Share2 className="w-5 h-5 text-gray-600" />
+            </Button>
           </div>
 
-          <div className="bg-indigo-50 text-indigo-700 font-bold px-4 py-2 rounded-lg inline-block border border-indigo-100">
-            Size: {listing.size}
+          <div className="flex gap-3">
+            <div className="bg-indigo-50 text-indigo-700 font-bold px-4 py-2 rounded-lg inline-block border border-indigo-100">
+              Size: {listing.size}
+            </div>
+            <div className="bg-pink-50 text-pink-700 font-bold px-4 py-2 rounded-lg inline-block border border-pink-100">
+              Gender: {listing.gender || "Unisex"}
+            </div>
           </div>
 
           <div className="flex items-end gap-3 pb-6 border-b border-gray-100">

@@ -18,6 +18,7 @@ export default function AddListing() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Casual");
+  const [gender, setGender] = useState("Unisex");
   const [size, setSize] = useState("M");
   const [pricePerDay, setPricePerDay] = useState("");
   const [deposit, setDeposit] = useState("");
@@ -101,6 +102,7 @@ export default function AddListing() {
         title,
         description,
         category,
+        gender,
         size,
         pricePerDay: Number(pricePerDay),
         deposit: Number(deposit),
@@ -154,6 +156,17 @@ export default function AddListing() {
                     <SelectItem value="Ethnic">Ethnic</SelectItem>
                     <SelectItem value="Formal">Formal</SelectItem>
                     <SelectItem value="Party">Party</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="font-semibold text-gray-700">Gender</Label>
+                <Select value={gender} onValueChange={(val) => val && setGender(val)}>
+                  <SelectTrigger className="h-12 bg-gray-50 border-gray-200"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Men">Men</SelectItem>
+                    <SelectItem value="Women">Women</SelectItem>
+                    <SelectItem value="Unisex">Unisex</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -10,12 +10,14 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
     const size = searchParams.get("size");
+    const gender = searchParams.get("gender");
     const ownerId = searchParams.get("ownerId");
     const status = searchParams.get("status");
 
     let query: any = {};
     if (category && category !== "All") query.category = category;
     if (size && size !== "All") query.size = size;
+    if (gender && gender !== "All") query.gender = gender;
     if (ownerId) query.ownerId = ownerId;
 
     // By default, only show approved listings. 
@@ -28,7 +30,7 @@ export async function GET(req: Request) {
     }
     // if status is "all", we don't add status to query, showing everything.
 
-    const listings = await Listing.find(query).populate("ownerId", "name email");
+    const listings = await Listing.find(query).populate("ownerId", "name email").sort({ createdAt: -1 });
     return NextResponse.json(listings, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -39,13 +41,14 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { ownerId, title, description, category, size, pricePerDay, deposit, images, availabilityDates, location } = body;
+    const { ownerId, title, description, category, gender, size, pricePerDay, deposit, images, availabilityDates, location } = body;
 
     const newListing = await Listing.create({
       ownerId,
       title,
       description,
       category,
+      gender,
       size,
       pricePerDay,
       deposit,

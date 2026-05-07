@@ -5,6 +5,7 @@ export interface IListing extends Document {
   title: string;
   description: string;
   category: string;
+  gender: "Men" | "Women" | "Unisex";
   size: "S" | "M" | "L" | "XL";
   pricePerDay: number;
   deposit: number;
@@ -24,6 +25,7 @@ const ListingSchema = new Schema<IListing>(
     title: { type: String, required: true },
     description: { type: String, required: true },
     category: { type: String, required: true },
+    gender: { type: String, enum: ["Men", "Women", "Unisex"], required: true, default: "Unisex" },
     size: { type: String, enum: ["S", "M", "L", "XL"], required: true },
     pricePerDay: { type: Number, required: true },
     deposit: { type: Number, required: true },

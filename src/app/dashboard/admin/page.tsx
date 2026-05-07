@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -11,6 +16,18 @@ export default function AdminDashboard() {
   const [ordersList, setOrdersList] = useState([]);
   const [listingsList, setListingsList] = useState([]);
   const [fetching, setFetching] = useState(true);
+  
+  // Edit State
+  const [editingListing, setEditingListing] = useState<any>(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    category: "",
+    size: "",
+    gender: "",
+    pricePerDay: "",
+    deposit: ""
+  });
 
   useEffect(() => {
     if (user && user.role === "ADMIN") {
@@ -48,6 +65,42 @@ export default function AdminDashboard() {
       fetchAdminData();
     } else {
       toast.error(`Failed to update listing status`);
+    }
+  };
+
+  const handleOpenEdit = (listing: any) => {
+    setEditingListing(listing);
+    setEditForm({
+      title: listing.title,
+      description: listing.description,
+      category: listing.category,
+      size: listing.size,
+      gender: listing.gender || "Unisex",
+      pricePerDay: listing.pricePerDay.toString(),
+      deposit: listing.deposit.toString()
+    });
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingListing) return;
+
+    const res = await fetch(`/api/admin/listings/${editingListing._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...editForm,
+        pricePerDay: Number(editForm.pricePerDay),
+        deposit: Number(editForm.deposit)
+      })
+    });
+
+    if (res.ok) {
+      toast.success("Listing updated successfully");
+      setEditingListing(null);
+      fetchAdminData();
+    } else {
+      toast.error("Failed to update listing");
     }
   };
 
@@ -116,10 +169,85 @@ export default function AdminDashboard() {
                              </div>
                           </div>
                           <div className="p-6 flex flex-col flex-grow">
-                             <h3 className="font-bold text-gray-900 truncate mb-1 text-lg">{item.title}</h3>
-                             <div className="text-[10px] text-gray-400 mb-5 uppercase font-black tracking-widest border-b border-gray-50 pb-4">Seller: {item.ownerId?.email}</div>
-                             
-                             <div className="mt-auto space-y-3">
+                              <div className="flex justify-between items-start mb-1">
+                                 <h3 className="font-bold text-gray-900 truncate text-lg max-w-[70%]">{item.title}</h3>
+                                 <span className="text-sm font-bold text-indigo-600">₹{item.pricePerDay}</span>
+                              </div>
+                              <div className="text-[10px] text-gray-400 mb-5 uppercase font-black tracking-widest border-b border-gray-50 pb-4">Seller: {item.ownerId?.email}</div>
+                              
+                              <div className="mt-auto space-y-3">
+                                 <Dialog open={editingListing?._id === item._id} onOpenChange={(open) => !open && setEditingListing(null)}>
+                                    <DialogTrigger asChild>
+                                       <Button onClick={() => handleOpenEdit(item)} variant="outline" className="w-full h-10 border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs font-bold rounded-xl">
+                                          Edit Details
+                                       </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[500px] rounded-3xl">
+                                       <DialogHeader>
+                                          <DialogTitle>Edit Listing Details</DialogTitle>
+                                       </DialogHeader>
+                                       <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+                                          <div className="space-y-2">
+                                             <Label>Title</Label>
+                                             <Input value={editForm.title} onChange={(e) => setEditForm({...editForm, title: e.target.value})} required />
+                                          </div>
+                                          <div className="space-y-2">
+                                             <Label>Description</Label>
+                                             <Textarea value={editForm.description} onChange={(e) => setEditForm({...editForm, description: e.target.value})} required />
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-4">
+                                             <div className="space-y-2">
+                                                <Label>Category</Label>
+                                                <Select value={editForm.category} onValueChange={(val) => setEditForm({...editForm, category: val})}>
+                                                   <SelectTrigger><SelectValue /></SelectTrigger>
+                                                   <SelectContent>
+                                                      <SelectItem value="Casual">Casual</SelectItem>
+                                                      <SelectItem value="Ethnic">Ethnic</SelectItem>
+                                                      <SelectItem value="Formal">Formal</SelectItem>
+                                                      <SelectItem value="Party">Party</SelectItem>
+                                                   </SelectContent>
+                                                </Select>
+                                             </div>
+                                             <div className="space-y-2">
+                                                <Label>Gender</Label>
+                                                <Select value={editForm.gender} onValueChange={(val) => setEditForm({...editForm, gender: val})}>
+                                                   <SelectTrigger><SelectValue /></SelectTrigger>
+                                                   <SelectContent>
+                                                      <SelectItem value="Men">Men</SelectItem>
+                                                      <SelectItem value="Women">Women</SelectItem>
+                                                      <SelectItem value="Unisex">Unisex</SelectItem>
+                                                   </SelectContent>
+                                                </Select>
+                                             </div>
+                                          </div>
+                                          <div className="grid grid-cols-3 gap-4">
+                                             <div className="space-y-2">
+                                                <Label>Size</Label>
+                                                <Select value={editForm.size} onValueChange={(val) => setEditForm({...editForm, size: val})}>
+                                                   <SelectTrigger><SelectValue /></SelectTrigger>
+                                                   <SelectContent>
+                                                      <SelectItem value="S">S</SelectItem>
+                                                      <SelectItem value="M">M</SelectItem>
+                                                      <SelectItem value="L">L</SelectItem>
+                                                      <SelectItem value="XL">XL</SelectItem>
+                                                   </SelectContent>
+                                                </Select>
+                                             </div>
+                                             <div className="space-y-2">
+                                                <Label>Price (₹)</Label>
+                                                <Input type="number" value={editForm.pricePerDay} onChange={(e) => setEditForm({...editForm, pricePerDay: e.target.value})} required />
+                                             </div>
+                                             <div className="space-y-2">
+                                                <Label>Deposit (₹)</Label>
+                                                <Input type="number" value={editForm.deposit} onChange={(e) => setEditForm({...editForm, deposit: e.target.value})} required />
+                                             </div>
+                                          </div>
+                                          <DialogFooter className="pt-4">
+                                             <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">Save Changes</Button>
+                                          </DialogFooter>
+                                       </form>
+                                    </DialogContent>
+                                 </Dialog>
                                 {(item.status === "pending" || !item.status) && (
                                    <div className="grid grid-cols-2 gap-3">
                                       <Button onClick={() => handleUpdateStatus(item._id, 'approved')} className="h-10 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-xl shadow-lg shadow-indigo-100">Approve</Button>
