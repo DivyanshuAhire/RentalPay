@@ -36,7 +36,7 @@ function SignupContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
-  
+
   const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim());
 
   const setupRecaptcha = () => {
@@ -55,9 +55,9 @@ function SignupContent() {
     const res = await fetch("/api/auth/firebase", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        uid: user.uid, 
-        email: user.email || undefined, 
+      body: JSON.stringify({
+        uid: user.uid,
+        email: user.email || undefined,
         phone: user.phoneNumber || undefined,
         name: displayName || user.displayName,
         gender: gender || undefined,
@@ -65,7 +65,7 @@ function SignupContent() {
         dob: dob || undefined,
       }),
     });
-    
+
     if (res.ok) {
       await refreshUser();
       toast.success("Successfully registered");
@@ -152,12 +152,12 @@ function SignupContent() {
         const res = await fetch("/api/auth/email/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            name, 
-            email: identifier, 
-            password, 
-            gender, 
-            address, 
+          body: JSON.stringify({
+            name,
+            email: identifier,
+            password,
+            gender,
+            address,
             dob,
             code: otp // Pass the OTP code here
           }),
@@ -190,7 +190,7 @@ function SignupContent() {
       <Card className="w-full max-w-md shadow-lg border-0">
         <CardHeader className="space-y-1">
           <CardTitle className="text-3xl font-bold text-center">Create an account</CardTitle>
-          <CardDescription className="text-center text-md">Join StyleP2P and start renting</CardDescription>
+          <CardDescription className="text-center text-md">Join RentalPay and start renting</CardDescription>
         </CardHeader>
         <CardContent>
           <div id="recaptcha-container"></div>
@@ -202,25 +202,25 @@ function SignupContent() {
                   {!isEmail && identifier && /^\d+$/.test(identifier) && (
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium">+91</span>
                   )}
-                  <Input 
-                    id="identifier" 
-                    required 
-                    value={identifier} 
+                  <Input
+                    id="identifier"
+                    required
+                    value={identifier}
                     onChange={(e) => {
                       let val = e.target.value;
                       if (val.startsWith("+91")) val = val.slice(3);
                       setIdentifier(val);
-                    }} 
-                    className={`h-12 ${!isEmail && identifier && /^\d+$/.test(identifier) ? "pl-12" : ""}`} 
-                    placeholder="Email or 9876543210" 
+                    }}
+                    className={`h-12 ${!isEmail && identifier && /^\d+$/.test(identifier) ? "pl-12" : ""}`}
+                    placeholder="Email or 9876543210"
                   />
                 </div>
               </div>
 
               <div className="flex items-start space-x-2 py-2">
-                <input 
-                  type="checkbox" 
-                  id="terms" 
+                <input
+                  type="checkbox"
+                  id="terms"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
@@ -271,11 +271,11 @@ function SignupContent() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="gender">Gender</Label>
-                <select 
-                  id="gender" 
-                  required 
-                  value={gender} 
-                  onChange={(e) => setGender(e.target.value)} 
+                <select
+                  id="gender"
+                  required
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
                   className="flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="" disabled>Select Gender</option>

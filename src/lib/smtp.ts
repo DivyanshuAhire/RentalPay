@@ -15,7 +15,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
   });
 
   const mailOptions = {
-    from: `StyleP2P <${user}>`,
+    from: `RentalPay <${user}>`,
     to: email,
     subject: subject,
     text: text,

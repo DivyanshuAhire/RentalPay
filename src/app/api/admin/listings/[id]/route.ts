@@ -34,11 +34,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     // Send notification email to owner
     const owner: any = listing.ownerId;
     if (owner && owner.email) {
-      const subject = status === "approved" ? "Listing Approved - StyleP2P" : "Listing Rejected - StyleP2P";
-      const message = status === "approved" 
-        ? `Hi ${owner.name},\n\nGreat news! Your listing "${listing.title}" has been approved and is now visible to the public.\n\nBest regards,\nStyleP2P Team`
-        : `Hi ${owner.name},\n\nWe regret to inform you that your listing "${listing.title}" has been rejected during our review process. If you have any questions, please contact support.\n\nBest regards,\nStyleP2P Team`;
-      
+      const subject = status === "approved" ? "Listing Approved - RentalPay" : "Listing Rejected - RentalPay";
+      const message = status === "approved"
+        ? `Hi ${owner.name},\n\nGreat news! Your listing "${listing.title}" has been approved and is now visible to the public.\n\nBest regards,\nRentalPay Team`
+        : `Hi ${owner.name},\n\nWe regret to inform you that your listing "${listing.title}" has been rejected during our review process. If you have any questions, please contact support.\n\nBest regards,\nRentalPay Team`;
+
       await sendNotificationEmail(owner.email, subject, message);
     }
 

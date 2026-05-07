@@ -14,7 +14,7 @@ export function Navbar() {
     <nav className="border-b bg-white shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent transform transition-transform hover:scale-105">
-          StyleP2P
+          RentalPay
         </Link>
         {/* Desktop nav */}
         <div className="hidden md:flex gap-4 items-center">

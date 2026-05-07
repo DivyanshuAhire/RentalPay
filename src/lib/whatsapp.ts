@@ -20,7 +20,7 @@ export async function sendWhatsAppOTP(phone: string, code: string) {
    *   body: JSON.stringify({
    *     token: "your-token",
    *     to: phone,
-   *     body: `Your StyleP2P verification code is: ${code}`
+   *     body: `Your RentalPay verification code is: ${code}`
    *   })
    * });
    */

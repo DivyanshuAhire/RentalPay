@@ -55,7 +55,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       setConfirmationResult(result);
       setPhoneVerifyStep(2);
       toast.success("OTP sent!");
-    } catch(err:any) {
+    } catch (err: any) {
       toast.error(err.message);
     } finally {
       setIsPhoneVerifyLoading(false);
@@ -73,13 +73,13 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
         body: JSON.stringify({ phone: phoneToVerify }),
       });
       if (res.ok) {
-         toast.success("Phone verified successfully!");
-         setIsPhoneVerifyModalOpen(false);
-         if (refreshUser) await refreshUser();
+        toast.success("Phone verified successfully!");
+        setIsPhoneVerifyModalOpen(false);
+        if (refreshUser) await refreshUser();
       } else {
-         toast.error("Failed to save phone number");
+        toast.error("Failed to save phone number");
       }
-    } catch(err:any) {
+    } catch (err: any) {
       toast.error(err.message || "Invalid OTP");
     } finally {
       setIsPhoneVerifyLoading(false);
@@ -87,7 +87,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   };
 
 
-  
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -133,8 +133,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       return;
     }
     if (new Date(startDate) > new Date(endDate)) {
-       toast.error("End date must be after start date");
-       return;
+      toast.error("End date must be after start date");
+      return;
     }
 
     setBookingLoading(true);
@@ -183,7 +183,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
         key: 'rzp_test_placeholder',
         amount: rzpData.amount,
         currency: rzpData.currency,
-        name: "StyleP2P",
+        name: "RentalPay",
         description: `Rental for ${listing.title}`,
         order_id: rzpData.id,
         handler: async function (response: any) {
@@ -213,7 +213,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       };
 
       const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', function (response: any){
+      rzp.on('payment.failed', function (response: any) {
         toast.error(response.error.description);
       });
       rzp.open();
@@ -229,177 +229,177 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
   return (
     <div className="max-w-5xl mx-auto py-8">
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Images */}
-          <div className="space-y-4">
-             <div className="bg-gray-100 rounded-3xl overflow-hidden aspect-square shadow-sm relative">
-                {listing.images && listing.images.length > 0 ? (
-                  <img src={listing.images[0]} alt="Primary" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex justify-center items-center text-gray-400">No Image Available</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        {/* Images */}
+        <div className="space-y-4">
+          <div className="bg-gray-100 rounded-3xl overflow-hidden aspect-square shadow-sm relative">
+            {listing.images && listing.images.length > 0 ? (
+              <img src={listing.images[0]} alt="Primary" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex justify-center items-center text-gray-400">No Image Available</div>
+            )}
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 leading-tight">{listing.title}</h1>
+            <p className="text-lg text-gray-500 font-medium">{listing.category}</p>
+          </div>
+
+          <div className="bg-indigo-50 text-indigo-700 font-bold px-4 py-2 rounded-lg inline-block border border-indigo-100">
+            Size: {listing.size}
+          </div>
+
+          <div className="flex items-end gap-3 pb-6 border-b border-gray-100">
+            <span className="text-4xl font-black text-indigo-600">₹{listing.pricePerDay}</span>
+            <span className="text-gray-500 font-semibold mb-1">/ per day</span>
+          </div>
+
+          <div>
+            <h3 className="font-bold text-gray-900 mb-2 text-lg">Description</h3>
+            <p className="text-gray-600 leading-relaxed">{listing.description}</p>
+          </div>
+
+          {listing.location && listing.location.lat && (
+            <div className="py-4">
+              <h3 className="font-bold text-gray-900 mb-4 text-lg">Location Area (10km Pickup Radius)</h3>
+              <div className="h-64 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-500 font-semibold shadow-inner border border-gray-100">Map is loading...</div>
+              <div className="h-64 rounded-3xl overflow-hidden shadow-sm border border-gray-100 relative z-0">
+                <MapContainer
+                  center={[listing.location.lat, listing.location.lng]}
+                  zoom={11}
+                  scrollWheelZoom={false}
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Circle
+                    center={[listing.location.lat, listing.location.lng]}
+                    pathOptions={{ fillColor: '#4f46e5', fillOpacity: 0.15, color: '#4f46e5' }}
+                    radius={5000}
+                  />
+                </MapContainer>
+              </div>
+            </div>
+          )}
+
+          <div className="pb-4">
+            <h3 className="font-bold text-gray-900 mb-2 text-lg">Owner Details</h3>
+            <div className="flex items-center gap-3 bg-white border rounded-full px-5 py-3 shadow-sm inline-block">
+              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
+                {listing.ownerId?.name?.charAt(0) || "U"}
+              </div>
+              <div className="text-gray-700 font-medium">{listing.ownerId?.name || "Unknown"}</div>
+            </div>
+          </div>
+
+          {/* Book Action */}
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger render={<Button className="w-full h-14 text-lg bg-indigo-600 hover:bg-indigo-700 shadow-xl hover:shadow-indigo-500/30 transition-all rounded-xl" />}>
+              Rent Now
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px] border-0 shadow-2xl rounded-3xl">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">Complete your Booking</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="bg-gray-50 p-5 rounded-2xl space-y-4 border border-gray-100">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-semibold mb-2 block text-gray-700">Start Date</label>
+                      <Input type="date" value={toInputDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} className="h-12 bg-white" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold mb-2 block text-gray-700">End Date</label>
+                      <Input type="date" value={toInputDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} className="h-12 bg-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-1">
+                  <label className="text-sm font-bold mb-2 block text-gray-700">Delivery Preference</label>
+                  <Select value={deliveryType} onValueChange={(val) => val && setDeliveryType(val)}>
+                    <SelectTrigger className="h-12 rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pickup">Self Pickup</SelectItem>
+                      <SelectItem value="Delivery">Delivery / Courier</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {startDate && endDate && calculateDays() > 0 && (
+                  <div className="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 mt-2 space-y-3">
+                    <div className="flex justify-between text-gray-600 font-medium">
+                      <span>₹{listing.pricePerDay} x {calculateDays()} days</span>
+                      <span className="text-gray-900">₹{listing.pricePerDay * calculateDays()}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600 font-medium">
+                      <span>Security Deposit (Refundable)</span>
+                      <span className="text-gray-900">₹{listing.deposit}</span>
+                    </div>
+                    <div className="h-px bg-indigo-200 my-2"></div>
+                    <div className="flex justify-between font-black text-indigo-900 text-xl">
+                      <span>Total Amount</span>
+                      <span>₹{(listing.pricePerDay * calculateDays()) + listing.deposit}</span>
+                    </div>
+                  </div>
                 )}
-             </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleBooking} disabled={bookingLoading} className="w-full h-12 text-md rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-md">
+                  {bookingLoading ? "Processing..." : "Pay & Confirm Booking"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+        </div>
+      </div>
+
+      {/* Recaptcha container for phone auth */}
+      <div id="recaptcha-container"></div>
+
+      <Dialog open={isPhoneVerifyModalOpen} onOpenChange={setIsPhoneVerifyModalOpen}>
+        <DialogContent className="sm:max-w-[400px] rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>Verify Phone Number</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-gray-500">You need a verified phone number to make a booking.</p>
+            {phoneVerifyStep === 1 ? (
+              <>
+                <Input
+                  placeholder="Phone Number (e.g. 9876543210)"
+                  value={phoneToVerify}
+                  onChange={(e) => setPhoneToVerify(e.target.value)}
+                  className="h-12"
+                />
+                <Button onClick={handleSendPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
+                  {isPhoneVerifyLoading ? "Sending..." : "Send OTP"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Input
+                  placeholder="Enter 6-digit OTP"
+                  value={verifyOtp}
+                  onChange={(e) => setVerifyOtp(e.target.value)}
+                  maxLength={6}
+                  className="h-12 tracking-widest text-center text-lg font-bold"
+                />
+                <Button onClick={handleVerifyPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
+                  {isPhoneVerifyLoading ? "Verifying..." : "Verify OTP"}
+                </Button>
+              </>
+            )}
           </div>
-
-          {/* Details */}
-          <div className="space-y-6">
-             <div>
-                <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 leading-tight">{listing.title}</h1>
-                <p className="text-lg text-gray-500 font-medium">{listing.category}</p>
-             </div>
-             
-             <div className="bg-indigo-50 text-indigo-700 font-bold px-4 py-2 rounded-lg inline-block border border-indigo-100">
-                Size: {listing.size}
-             </div>
-
-             <div className="flex items-end gap-3 pb-6 border-b border-gray-100">
-               <span className="text-4xl font-black text-indigo-600">₹{listing.pricePerDay}</span>
-               <span className="text-gray-500 font-semibold mb-1">/ per day</span>
-             </div>
-
-             <div>
-               <h3 className="font-bold text-gray-900 mb-2 text-lg">Description</h3>
-               <p className="text-gray-600 leading-relaxed">{listing.description}</p>
-             </div>
-
-             {listing.location && listing.location.lat && (
-             <div className="py-4">
-                <h3 className="font-bold text-gray-900 mb-4 text-lg">Location Area (10km Pickup Radius)</h3>
-                <div className="h-64 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-500 font-semibold shadow-inner border border-gray-100">Map is loading...</div>
-                   <div className="h-64 rounded-3xl overflow-hidden shadow-sm border border-gray-100 relative z-0">
-                     <MapContainer
-                        center={[listing.location.lat, listing.location.lng]}
-                        zoom={11}
-                        scrollWheelZoom={false}
-                        style={{ width: '100%', height: '100%' }}
-                     >
-                        <TileLayer
-                           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <Circle
-                           center={[listing.location.lat, listing.location.lng]}
-                           pathOptions={{ fillColor: '#4f46e5', fillOpacity: 0.15, color: '#4f46e5' }}
-                           radius={5000}
-                        />
-                     </MapContainer>
-                   </div>
-                </div>
-              )}
-
-             <div className="pb-4">
-                <h3 className="font-bold text-gray-900 mb-2 text-lg">Owner Details</h3>
-                <div className="flex items-center gap-3 bg-white border rounded-full px-5 py-3 shadow-sm inline-block">
-                   <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
-                      {listing.ownerId?.name?.charAt(0) || "U"}
-                   </div>
-                   <div className="text-gray-700 font-medium">{listing.ownerId?.name || "Unknown"}</div>
-                </div>
-             </div>
-
-             {/* Book Action */}
-             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-               <DialogTrigger render={<Button className="w-full h-14 text-lg bg-indigo-600 hover:bg-indigo-700 shadow-xl hover:shadow-indigo-500/30 transition-all rounded-xl" />}>
-                  Rent Now
-               </DialogTrigger>
-               <DialogContent className="sm:max-w-[500px] border-0 shadow-2xl rounded-3xl">
-                 <DialogHeader>
-                   <DialogTitle className="text-2xl font-bold">Complete your Booking</DialogTitle>
-                 </DialogHeader>
-                 <div className="grid gap-4 py-4">
-                   <div className="bg-gray-50 p-5 rounded-2xl space-y-4 border border-gray-100">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                           <label className="text-sm font-semibold mb-2 block text-gray-700">Start Date</label>
-                           <Input type="date" value={toInputDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} className="h-12 bg-white" />
-                        </div>
-                        <div>
-                           <label className="text-sm font-semibold mb-2 block text-gray-700">End Date</label>
-                           <Input type="date" value={toInputDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} className="h-12 bg-white" />
-                        </div>
-                      </div>
-                   </div>
-
-                   <div className="px-1">
-                      <label className="text-sm font-bold mb-2 block text-gray-700">Delivery Preference</label>
-                      <Select value={deliveryType} onValueChange={(val) => val && setDeliveryType(val)}>
-                         <SelectTrigger className="h-12 rounded-xl">
-                            <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent>
-                            <SelectItem value="Pickup">Self Pickup</SelectItem>
-                            <SelectItem value="Delivery">Delivery / Courier</SelectItem>
-                         </SelectContent>
-                      </Select>
-                   </div>
-
-                   {startDate && endDate && calculateDays() > 0 && (
-                      <div className="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 mt-2 space-y-3">
-                         <div className="flex justify-between text-gray-600 font-medium">
-                            <span>₹{listing.pricePerDay} x {calculateDays()} days</span>
-                            <span className="text-gray-900">₹{listing.pricePerDay * calculateDays()}</span>
-                         </div>
-                         <div className="flex justify-between text-gray-600 font-medium">
-                            <span>Security Deposit (Refundable)</span>
-                            <span className="text-gray-900">₹{listing.deposit}</span>
-                         </div>
-                         <div className="h-px bg-indigo-200 my-2"></div>
-                         <div className="flex justify-between font-black text-indigo-900 text-xl">
-                            <span>Total Amount</span>
-                            <span>₹{(listing.pricePerDay * calculateDays()) + listing.deposit}</span>
-                         </div>
-                      </div>
-                   )}
-                 </div>
-                 <DialogFooter>
-                   <Button onClick={handleBooking} disabled={bookingLoading} className="w-full h-12 text-md rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-md">
-                     {bookingLoading ? "Processing..." : "Pay & Confirm Booking"}
-                   </Button>
-                 </DialogFooter>
-               </DialogContent>
-             </Dialog>
-
-          </div>
-       </div>
-
-       {/* Recaptcha container for phone auth */}
-       <div id="recaptcha-container"></div>
-
-       <Dialog open={isPhoneVerifyModalOpen} onOpenChange={setIsPhoneVerifyModalOpen}>
-         <DialogContent className="sm:max-w-[400px] rounded-3xl">
-           <DialogHeader>
-             <DialogTitle>Verify Phone Number</DialogTitle>
-           </DialogHeader>
-           <div className="space-y-4 py-4">
-             <p className="text-sm text-gray-500">You need a verified phone number to make a booking.</p>
-             {phoneVerifyStep === 1 ? (
-               <>
-                 <Input 
-                   placeholder="Phone Number (e.g. 9876543210)" 
-                   value={phoneToVerify} 
-                   onChange={(e) => setPhoneToVerify(e.target.value)} 
-                   className="h-12"
-                 />
-                 <Button onClick={handleSendPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
-                   {isPhoneVerifyLoading ? "Sending..." : "Send OTP"}
-                 </Button>
-               </>
-             ) : (
-               <>
-                 <Input 
-                   placeholder="Enter 6-digit OTP" 
-                   value={verifyOtp} 
-                   onChange={(e) => setVerifyOtp(e.target.value)} 
-                   maxLength={6}
-                   className="h-12 tracking-widest text-center text-lg font-bold"
-                 />
-                 <Button onClick={handleVerifyPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
-                   {isPhoneVerifyLoading ? "Verifying..." : "Verify OTP"}
-                 </Button>
-               </>
-             )}
-           </div>
-         </DialogContent>
-       </Dialog>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

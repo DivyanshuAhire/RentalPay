@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     if (category && category !== "All") query.category = category;
     if (size && size !== "All") query.size = size;
     if (ownerId) query.ownerId = ownerId;
-    
+
     // By default, only show approved listings. 
     // If ownerId is provided, show all their listings (for their dashboard).
     // If status is provided specifically (e.g. for admin), use that.
@@ -60,8 +60,8 @@ export async function POST(req: Request) {
     if (owner && owner.email) {
       await sendNotificationEmail(
         owner.email,
-        "Listing Received - StyleP2P",
-        `Hi ${owner.name},\n\nYour listing "${title}" has been received and is currently under review by our team. You will be notified once it is approved and public.\n\nBest regards,\nStyleP2P Team`
+        "Listing Received - RentalPay",
+        `Hi ${owner.name},\n\nYour listing "${title}" has been received and is currently under review by our team. You will be notified once it is approved and public.\n\nBest regards,\nRentalPay Team`
       );
     }
 
