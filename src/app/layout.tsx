@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "P2P Clothes Rental",
+  title: "RentalPay",
   description: "Rent designer clothes from your peers",
 };
 
