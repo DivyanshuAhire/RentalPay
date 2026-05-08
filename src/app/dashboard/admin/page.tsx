@@ -16,6 +16,7 @@ export default function AdminDashboard() {
   const [ordersList, setOrdersList] = useState([]);
   const [listingsList, setListingsList] = useState([]);
   const [payoutRequests, setPayoutRequests] = useState([]);
+  const [systemSettings, setSystemSettings] = useState({ bannerMessage: "", showBanner: true, disablePhoneAuth: false });
   const [fetching, setFetching] = useState(true);
   
   // Edit State
@@ -53,6 +54,9 @@ export default function AdminDashboard() {
       if (ordersRes.ok) setOrdersList(await ordersRes.json());
       if (listingsRes.ok) setListingsList(await listingsRes.json());
       if (payoutsRes.ok) setPayoutRequests(await payoutsRes.json());
+      
+      const settingsRes = await fetch("/api/admin/settings");
+      if (settingsRes.ok) setSystemSettings(await settingsRes.json());
     } finally {
       setFetching(false);
     }
@@ -137,6 +141,19 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSaveSettings = async () => {
+    const res = await fetch("/api/admin/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(systemSettings)
+    });
+    if (res.ok) {
+      toast.success("System settings updated! Refresh the page to see changes.");
+    } else {
+      toast.error("Failed to update settings");
+    }
+  };
+
 
   if (loading || fetching) return <div className="text-center py-32 text-gray-500 font-medium text-lg">Loading Admin Panel...</div>;
   if (!user || user.role !== "ADMIN") return <div className="text-center py-32 font-bold text-red-500 text-xl">Access Denied. Ensure your account role is set to ADMIN.</div>;
@@ -167,7 +184,8 @@ export default function AdminDashboard() {
              { label: "Moderation", id: "moderation-section", icon: "📋" },
              { label: "Payouts", id: "payouts-section", icon: "💰" },
              { label: "Users", id: "users-section", icon: "👥" },
-             { label: "Transactions", id: "transactions-section", icon: "💸" }
+             { label: "Transactions", id: "transactions-section", icon: "💸" },
+             { label: "System Settings", id: "settings-section", icon: "⚙️" }
            ].map((nav) => (
              <Button
                key={nav.id}
@@ -447,6 +465,76 @@ export default function AdminDashboard() {
                       )}
                    </div>
                 ))}
+             </div>
+          </div>
+       </div>
+
+       {/* System Settings */}
+       <div id="settings-section" className="space-y-6 scroll-mt-24 pt-12">
+          <div className="flex justify-between items-end px-2">
+            <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">System Control Panel</h2>
+            <div className="text-sm font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-4 py-1 rounded-full border border-gray-100">Live Settings</div>
+          </div>
+          
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10 space-y-8">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-4">
+                   <div className="space-y-4">
+                      <Label className="text-lg font-bold mb-2 block">Top Banner Message (Rotating Text)</Label>
+                      <p className="text-sm text-gray-500 mb-4 font-medium">This text will scroll horizontally at the very top of the entire website.</p>
+                      <Input 
+                        value={systemSettings.bannerMessage} 
+                        onChange={(e) => setSystemSettings({...systemSettings, bannerMessage: e.target.value})} 
+                        className="h-14 text-lg border-gray-200 focus:ring-indigo-500 rounded-2xl mb-4"
+                        placeholder="Enter marquee message..."
+                        disabled={!systemSettings.showBanner}
+                      />
+                      
+                      <div className="flex items-center gap-4 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                         <div className="flex-1">
+                            <div className="font-bold text-gray-900">{systemSettings.showBanner ? "BANNER IS VISIBLE" : "BANNER IS HIDDEN"}</div>
+                            <div className="text-xs text-gray-500 mt-1">{systemSettings.showBanner ? "Text is scrolling on all pages" : "The marquee is currently disabled"}</div>
+                         </div>
+                         <Button 
+                            onClick={() => setSystemSettings({...systemSettings, showBanner: !systemSettings.showBanner})}
+                            variant={systemSettings.showBanner ? "outline" : "destructive"}
+                            className="rounded-xl h-12 px-6 font-bold"
+                         >
+                            {systemSettings.showBanner ? "Hide Banner" : "Show Banner"}
+                         </Button>
+                      </div>
+                   </div>
+                   <div className="pt-4">
+                      <Label className="text-lg font-bold mb-2 block">Phone Verification Mode</Label>
+                      <p className="text-sm text-gray-500 mb-4 font-medium">When disabled, users can register and verify any number without real OTP.</p>
+                      <div className="flex items-center gap-4 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                         <div className="flex-1">
+                            <div className="font-bold text-gray-900">{systemSettings.disablePhoneAuth ? "OTP DISABLED (Fast Testing)" : "OTP ENABLED (Real Production)"}</div>
+                            <div className="text-xs text-gray-500 mt-1">{systemSettings.disablePhoneAuth ? "Users will bypass Firebase Phone Auth" : "Users must verify via Firebase OTP"}</div>
+                         </div>
+                         <Button 
+                            onClick={() => setSystemSettings({...systemSettings, disablePhoneAuth: !systemSettings.disablePhoneAuth})}
+                            variant={systemSettings.disablePhoneAuth ? "destructive" : "outline"}
+                            className="rounded-xl h-12 px-6 font-bold"
+                         >
+                            {systemSettings.disablePhoneAuth ? "Enable OTP" : "Disable OTP"}
+                         </Button>
+                      </div>
+                   </div>
+                </div>
+
+                <div className="bg-indigo-50 rounded-3xl p-8 border border-indigo-100 space-y-6 flex flex-col justify-between">
+                   <div>
+                      <h3 className="text-xl font-bold text-indigo-900 mb-2">Platform Management</h3>
+                      <p className="text-indigo-700/80 font-medium">Changes here affect all users in real-time. Ensure you double-check the rotating message for typos before saving.</p>
+                   </div>
+                   <div className="space-y-3">
+                      <Button onClick={handleSaveSettings} className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-lg font-black rounded-2xl shadow-xl shadow-indigo-200">
+                        Update System Settings
+                      </Button>
+                      <p className="text-center text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Authorized Admin Action Only</p>
+                   </div>
+                </div>
              </div>
           </div>
        </div>

@@ -25,6 +25,7 @@ interface AuthContextType {
   logout: () => void;
   loading: boolean;
   refreshUser: () => Promise<void>;
+  sysSettings: { bannerMessage: string; showBanner: boolean; disablePhoneAuth: boolean } | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -33,11 +34,13 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   loading: true,
   refreshUser: async () => {},
+  sysSettings: null,
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sysSettings, setSysSettings] = useState<any>(null);
   const router = useRouter();
 
   // On mount: validate session against the server (cookie-based).
@@ -78,7 +81,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch("/api/admin/settings");
+        if (res.ok) setSysSettings(await res.json());
+      } catch {}
+    };
+
     validateSession();
+    fetchSettings();
   }, []);
 
   const refreshUser = async () => {
@@ -117,7 +128,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, refreshUser, sysSettings }}>
       {children}
     </AuthContext.Provider>
   );
