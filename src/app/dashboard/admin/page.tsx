@@ -15,6 +15,7 @@ export default function AdminDashboard() {
   const [usersList, setUsersList] = useState([]);
   const [ordersList, setOrdersList] = useState([]);
   const [listingsList, setListingsList] = useState([]);
+  const [payoutRequests, setPayoutRequests] = useState([]);
   const [fetching, setFetching] = useState(true);
   
   // Edit State
@@ -26,7 +27,8 @@ export default function AdminDashboard() {
     size: "",
     gender: "",
     pricePerDay: "",
-    deposit: ""
+    deposit: "",
+    comment: ""
   });
 
   useEffect(() => {
@@ -39,26 +41,28 @@ export default function AdminDashboard() {
 
   const fetchAdminData = async () => {
     try {
-      const [profitRes, usersRes, ordersRes, listingsRes] = await Promise.all([
+      const [profitRes, usersRes, ordersRes, listingsRes, payoutsRes] = await Promise.all([
          fetch("/api/admin/profits"),
          fetch("/api/admin/users"),
          fetch("/api/admin/orders"),
-         fetch("/api/listings?status=all")
+         fetch("/api/listings?status=all"),
+         fetch("/api/admin/payouts")
       ]);
       if (profitRes.ok) setProfits((await profitRes.json()).totalProfits);
       if (usersRes.ok) setUsersList(await usersRes.json());
       if (ordersRes.ok) setOrdersList(await ordersRes.json());
       if (listingsRes.ok) setListingsList(await listingsRes.json());
+      if (payoutsRes.ok) setPayoutRequests(await payoutsRes.json());
     } finally {
       setFetching(false);
     }
   };
 
-  const handleUpdateStatus = async (listingId: string, status: 'approved' | 'rejected') => {
+  const handleUpdateStatus = async (listingId: string, status: 'approved' | 'rejected', comment?: string) => {
     const res = await fetch(`/api/admin/listings/${listingId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status, comment })
     });
     if (res.ok) {
       toast.success(`Listing ${status}`);
@@ -77,7 +81,8 @@ export default function AdminDashboard() {
       size: listing.size,
       gender: listing.gender || "Unisex",
       pricePerDay: listing.pricePerDay.toString(),
-      deposit: listing.deposit.toString()
+      deposit: listing.deposit.toString(),
+      comment: ""
     });
   };
 
@@ -115,6 +120,23 @@ export default function AdminDashboard() {
       }
     }
   }
+  const handleProcessPayout = async (orderId: string, type: 'earning' | 'deposit') => {
+    if (!confirm(`Are you sure you have transferred the money and want to mark this ${type} payout as Completed?`)) return;
+
+    const res = await fetch(`/api/admin/payouts/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, status: "Completed" })
+    });
+
+    if (res.ok) {
+      toast.success("Payout marked as Completed");
+      fetchAdminData();
+    } else {
+      toast.error("Failed to update payout status");
+    }
+  };
+
 
   if (loading || fetching) return <div className="text-center py-32 text-gray-500 font-medium text-lg">Loading Admin Panel...</div>;
   if (!user || user.role !== "ADMIN") return <div className="text-center py-32 font-bold text-red-500 text-xl">Access Denied. Ensure your account role is set to ADMIN.</div>;
@@ -138,8 +160,29 @@ export default function AdminDashboard() {
          <div className="absolute bottom-0 left-0 w-80 h-80 bg-rose-500 opacity-[0.10] rounded-full blur-[80px] -translate-x-1/4 translate-y-1/4 pointer-events-none"></div>
        </div>
 
+       {/* Quick Navigation Bar */}
+       <div className="sticky top-4 z-50 px-4">
+         <div className="bg-white/80 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-2xl p-2 flex flex-wrap justify-center gap-2 max-w-fit mx-auto">
+           {[
+             { label: "Moderation", id: "moderation-section", icon: "📋" },
+             { label: "Payouts", id: "payouts-section", icon: "💰" },
+             { label: "Users", id: "users-section", icon: "👥" },
+             { label: "Transactions", id: "transactions-section", icon: "💸" }
+           ].map((nav) => (
+             <Button
+               key={nav.id}
+               variant="ghost"
+               onClick={() => document.getElementById(nav.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+               className="h-10 px-4 rounded-xl font-bold text-xs hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center gap-2"
+             >
+               <span>{nav.icon}</span> {nav.label}
+             </Button>
+           ))}
+         </div>
+       </div>
+
        {/* Platform Listings Moderation */}
-       <div className="space-y-6">
+       <div id="moderation-section" className="space-y-6 scroll-mt-24">
           <div className="flex justify-between items-end px-2">
             <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">Pending Review & Moderation</h2>
             <div className="text-sm font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-4 py-1 rounded-full border border-gray-100">Total Listings: {listingsList.length}</div>
@@ -240,6 +283,16 @@ export default function AdminDashboard() {
                                                 <Input type="number" value={editForm.deposit} onChange={(e) => setEditForm({...editForm, deposit: e.target.value})} required />
                                              </div>
                                           </div>
+                                          <div className="space-y-2">
+                                             <Label>Message to Lister (Optional Comment)</Label>
+                                             <Textarea 
+                                                placeholder="Add a message or reason for these changes..." 
+                                                value={editForm.comment} 
+                                                onChange={(e) => setEditForm({...editForm, comment: e.target.value})} 
+                                                className="min-h-[80px]"
+                                             />
+                                             <p className="text-[10px] text-gray-400">This comment will be included in the automated email sent to the owner.</p>
+                                          </div>
                                           <DialogFooter className="pt-4">
                                              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">Save Changes</Button>
                                           </DialogFooter>
@@ -269,9 +322,79 @@ export default function AdminDashboard() {
           </div>
        </div>
 
+       {/* Platform Payouts Management */}
+       <div id="payouts-section" className="space-y-6 scroll-mt-24">
+          <div className="flex justify-between items-end px-2">
+            <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-900 to-emerald-600">Payout Requests (Withdrawals)</h2>
+            <div className="text-sm font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-4 py-1 rounded-full border border-emerald-100">Pending: {payoutRequests.length}</div>
+          </div>
+
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-8">
+             {payoutRequests.length === 0 ? (
+                <div className="text-center py-20 text-gray-400 font-medium">
+                  <div className="text-5xl mb-4">💰</div>
+                  No active payout requests.
+                </div>
+             ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                   {payoutRequests.map((order: any) => {
+                      const requests = [];
+                      if (order.ownerEarningStatus === "Requested") requests.push({ type: 'earning', amount: order.ownerEarning, user: order.ownerId, label: 'Owner Earning' });
+                      if (order.depositRefundStatus === "Requested") requests.push({ type: 'deposit', amount: order.securityDeposit, user: order.renterId, label: 'Security Deposit' });
+
+                      return requests.map((req, idx) => (
+                        <div key={`${order._id}-${idx}`} className="bg-gray-50 rounded-3xl border border-gray-100 p-6 hover:shadow-md transition-shadow">
+                           <div className="flex justify-between items-start mb-4">
+                              <div>
+                                 <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">{req.label} Request</div>
+                                 <h3 className="text-xl font-bold text-gray-900 leading-tight">{order.listingId?.title || "Item Removal"}</h3>
+                              </div>
+                              <div className="text-2xl font-black text-gray-900">₹{req.amount}</div>
+                           </div>
+
+                           <div className="bg-white rounded-2xl p-4 border border-gray-100 mb-6 space-y-3">
+                              <div className="flex justify-between items-center">
+                                 <div className="text-xs text-gray-500 font-bold uppercase">Beneficiary</div>
+                                 <div className="text-sm font-black text-gray-900">{req.user?.name}</div>
+                              </div>
+                              <div className="h-px bg-gray-50" />
+                              <div className="space-y-2">
+                                 <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Bank/UPI Details</div>
+                                 {req.user?.bankDetails?.accountNumber ? (
+                                    <div className="text-xs font-medium text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                       <div><span className="font-bold">A/C:</span> {req.user.bankDetails.accountNumber}</div>
+                                       <div><span className="font-bold">IFSC:</span> {req.user.bankDetails.ifscCode}</div>
+                                       <div><span className="font-bold">Name:</span> {req.user.bankDetails.beneficiaryName}</div>
+                                    </div>
+                                 ) : req.user?.upiId ? (
+                                    <div className="text-sm font-black text-indigo-600 bg-indigo-50/50 px-4 py-2 rounded-xl border border-indigo-100 inline-block">
+                                       UPI: {req.user.upiId}
+                                    </div>
+                                 ) : (
+                                    <div className="text-xs text-red-500 font-bold italic">User has not connected bank/UPI yet.</div>
+                                 )}
+                              </div>
+                           </div>
+
+                           <div className="flex gap-3">
+                              <Button 
+                                 onClick={() => handleProcessPayout(order._id, req.type as any)} 
+                                 className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-black text-xs shadow-lg shadow-emerald-100"
+                              >
+                                 Confirm Payment Sent
+                              </Button>
+                           </div>
+                        </div>
+                      ));
+                   })}
+                </div>
+             )}
+          </div>
+       </div>
+
        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
           {/* Users List */}
-          <div className="space-y-6">
+          <div id="users-section" className="space-y-6 scroll-mt-24">
              <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500 px-2">Registered Users ({usersList.length})</h2>
              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-6 max-h-[700px] overflow-y-auto space-y-4">
                 {usersList.length === 0 && <div className="text-gray-400 text-center py-10 font-medium">No users found.</div>}
@@ -290,7 +413,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Recent Transactions */}
-          <div className="space-y-6">
+          <div id="transactions-section" className="space-y-6 scroll-mt-24">
              <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500 px-2">Recent Transactions</h2>
              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-6 max-h-[700px] overflow-y-auto space-y-5">
                 {ordersList.length === 0 && <div className="text-gray-400 text-center py-10 font-medium">No transactions available.</div>}

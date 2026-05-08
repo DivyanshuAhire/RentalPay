@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
-    const { status, title, description, category, size, gender, pricePerDay, deposit } = await req.json();
+    const { status, title, description, category, size, gender, pricePerDay, deposit, comment } = await req.json();
     
     const updateData: any = {};
     if (status) updateData.status = status;
@@ -41,10 +41,21 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     // Send notification email to owner
     const owner: any = listing.ownerId;
     if (owner && owner.email) {
-      const subject = status === "approved" ? "Listing Approved - RentalPay" : "Listing Rejected - RentalPay";
-      const message = status === "approved"
-        ? `Hi ${owner.name},\n\nGreat news! Your listing "${listing.title}" has been approved and is now visible to the public.\n\nBest regards,\nRentalPay Team`
-        : `Hi ${owner.name},\n\nWe regret to inform you that your listing "${listing.title}" has been rejected during our review process. If you have any questions, please contact support.\n\nBest regards,\nRentalPay Team`;
+      let subject = "";
+      let message = "";
+
+      const isStatusOnly = status && !title && !description && !category && !size && !gender && pricePerDay === undefined && deposit === undefined;
+
+      if (isStatusOnly) {
+        subject = status === "approved" ? "Listing Approved - RentalPay" : "Listing Rejected - RentalPay";
+        message = status === "approved"
+          ? `Hi ${owner.name},\n\nGreat news! Your listing "${listing.title}" has been approved and is now visible to the public.\n\n${comment ? `Admin Message: ${comment}\n\n` : ""}Best regards,\nRentalPay Team`
+          : `Hi ${owner.name},\n\nWe regret to inform you that your listing "${listing.title}" has been rejected during our review process.\n\n${comment ? `Admin Message: ${comment}\n\n` : ""}If you have any questions, please contact support.\n\nBest regards,\nRentalPay Team`;
+      } else {
+        const changedFields = Object.keys(updateData).filter(k => k !== 'status');
+        subject = "Listing Details Updated - RentalPay";
+        message = `Hi ${owner.name},\n\nOur moderation team has updated your listing "${listing.title}".\n\nThe following fields were updated: ${changedFields.join(", ")}.\n\n${comment ? `Admin Message: ${comment}\n\n` : ""}These changes were made to maintain platform quality standards.\n\nBest regards,\nRentalPay Team`;
+      }
 
       await sendNotificationEmail(owner.email, subject, message);
     }
