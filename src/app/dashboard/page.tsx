@@ -112,11 +112,14 @@ export default function UnifiedDashboard() {
     }
   };
 
+  useEffect(() => {
+    if (!loading && (!user || (user.role !== "USER" && user.role !== "TESTER"))) {
+      router.replace("/login");
+    }
+  }, [user, loading, router]);
+
   if (loading || fetching) return <div className="text-center py-24 font-medium text-gray-500">Loading dashboard...</div>;
-  if (!loading && (!user || (user.role !== "USER" && user.role !== "TESTER"))) {
-    router.replace("/login");
-    return null;
-  }
+  if (!user || (user.role !== "USER" && user.role !== "TESTER")) return null;
 
   const myRentedClothes = orders.filter((o: any) => o.renterId?._id?.toString() === user?.id?.toString());
   const incomingRequests = orders.filter((o: any) => o.ownerId?._id?.toString() === user?.id?.toString());

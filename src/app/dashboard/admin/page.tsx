@@ -178,8 +178,8 @@ export default function AdminDashboard() {
        </div>
 
        {/* Quick Navigation Bar */}
-       <div className="sticky top-4 z-50 px-4">
-         <div className="bg-white/80 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-2xl p-2 flex flex-wrap justify-center gap-2 max-w-fit mx-auto">
+       <div className="sticky top-4 z-50 px-2 md:px-4">
+         <div className="bg-white/90 backdrop-blur-2xl border border-white/40 shadow-2xl rounded-2xl p-1.5 flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-1 overflow-x-auto no-scrollbar max-w-full md:max-w-fit mx-auto">
            {[
              { label: "Moderation", id: "moderation-section", icon: "📋" },
              { label: "Payouts", id: "payouts-section", icon: "💰" },
@@ -191,13 +191,24 @@ export default function AdminDashboard() {
                key={nav.id}
                variant="ghost"
                onClick={() => document.getElementById(nav.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-               className="h-10 px-4 rounded-xl font-bold text-xs hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center gap-2"
+               className="h-10 px-3 md:px-4 rounded-xl font-bold text-[10px] md:text-xs hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center gap-2 shrink-0 border border-transparent hover:border-indigo-100"
              >
-               <span>{nav.icon}</span> {nav.label}
+               <span className="text-sm md:text-base">{nav.icon}</span> 
+               <span className="whitespace-nowrap">{nav.label}</span>
              </Button>
            ))}
          </div>
        </div>
+
+       <style jsx global>{`
+         .no-scrollbar::-webkit-scrollbar {
+           display: none;
+         }
+         .no-scrollbar {
+           -ms-overflow-style: none;
+           scrollbar-width: none;
+         }
+       `}</style>
 
        {/* Platform Listings Moderation */}
        <div id="moderation-section" className="space-y-6 scroll-mt-24">
