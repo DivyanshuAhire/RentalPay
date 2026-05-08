@@ -11,7 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { Share2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Share2, MapPin, ChevronLeft, ChevronRight, Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, addDays, isSameDay, isWithinInterval, startOfDay } from "date-fns";
 
 
 
@@ -23,7 +26,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const router = useRouter();
 
   const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [numberOfDays, setNumberOfDays] = useState<number>(1);
   const [deliveryType, setDeliveryType] = useState("Pickup");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
@@ -105,11 +108,19 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
     if (res.ok) setListing(data);
   };
 
-  const calculateDays = () => {
-    if (!startDate || !endDate) return 0;
-    const s = new Date(startDate);
-    const e = new Date(endDate);
-    return Math.abs(Math.floor((e.getTime() - s.getTime()) / (1000 * 3600 * 24))) + 1;
+  const calculateEndDate = () => {
+    if (!startDate || !numberOfDays) return null;
+    return addDays(startDate, numberOfDays - 1);
+  };
+
+  const isDateBooked = (date: Date) => {
+    if (!listing?.bookedDates) return false;
+    const d = startOfDay(date);
+    return listing.bookedDates.some((booking: any) => {
+      const start = startOfDay(new Date(booking.startDate));
+      const end = startOfDay(new Date(booking.endDate));
+      return isWithinInterval(d, { start, end });
+    });
   };
 
   const toInputDate = (dateObj?: Date) => {
@@ -128,13 +139,18 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       setIsPhoneVerifyModalOpen(true);
       return;
     }
+    const endDate = calculateEndDate();
     if (!startDate || !endDate) {
-      toast.error("Please select start and end dates");
+      toast.error("Please select start date and number of days");
       return;
     }
-    if (new Date(startDate) > new Date(endDate)) {
-      toast.error("End date must be after start date");
-      return;
+    
+    // Check if any date in the selected range is already booked
+    for (let i = 0; i < numberOfDays; i++) {
+      if (isDateBooked(addDays(startDate, i))) {
+        toast.error("Selected dates include already booked days");
+        return;
+      }
     }
 
     setBookingLoading(true);
@@ -143,7 +159,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       const res = await fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingId: id, startDate, endDate, deliveryType }),
+        body: JSON.stringify({ listingId: id, startDate, endDate: calculateEndDate(), deliveryType }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Booking failed");
@@ -255,31 +271,31 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             {listing.images && listing.images.length > 0 ? (
               <>
                 {/* Blurred Backdrop to match proportions automatically */}
-                <img 
-                  src={listing.images[activeImg]} 
-                  className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 scale-125" 
+                <img
+                  src={listing.images[activeImg]}
+                  className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 scale-125"
                   alt=""
                 />
                 {/* Main Content Image */}
-                <img 
-                  src={listing.images[activeImg]} 
-                  alt="Primary" 
-                  className="relative w-full h-full object-contain transition-all duration-700 group-hover:scale-[1.03]" 
+                <img
+                  src={listing.images[activeImg]}
+                  alt="Primary"
+                  className="relative w-full h-full object-contain transition-all duration-700 group-hover:scale-[1.03]"
                 />
               </>
             ) : (
               <div className="w-full h-full flex justify-center items-center text-gray-400">No Image Available</div>
             )}
-            
+
             {listing.images && listing.images.length > 1 && (
               <>
-                <button 
+                <button
                   onClick={() => setActiveImg((prev) => (prev - 1 + listing.images.length) % listing.images.length)}
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-800 shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-white"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveImg((prev) => (prev + 1) % listing.images.length)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-800 shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-white"
                 >
@@ -300,8 +316,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
           {listing.images && listing.images.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
               {listing.images.map((img: string, idx: number) => (
-                <button 
-                  key={idx} 
+                <button
+                  key={idx}
                   onClick={() => setActiveImg(idx)}
                   className={`w-16 aspect-[4/5] rounded-xl overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0 relative ${activeImg === idx ? 'border-indigo-600 ring-2 ring-indigo-50' : 'border-transparent hover:border-gray-200'}`}
                 >
@@ -377,16 +393,64 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="bg-gray-50 p-5 rounded-2xl space-y-4 border border-gray-100">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold mb-2 block text-gray-700">Start Date</label>
-                      <Input type="date" value={toInputDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} className="h-12 bg-white" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold block text-gray-700">Start Date</label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={`w-full h-12 justify-start text-left font-normal bg-white ${!startDate && "text-muted-foreground"}`}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={startDate}
+                            onSelect={setStartDate}
+                            disabled={(date) => date < startOfDay(new Date()) || isDateBooked(date)}
+                            initialFocus
+                            components={{
+                              DayButton: (props) => {
+                                const isBooked = isDateBooked(props.day.date);
+                                return (
+                                  <div className="relative w-full h-full">
+                                    <CalendarDayButton 
+                                      {...props} 
+                                      className={`${props.className} ${isBooked ? "opacity-50" : ""}`}
+                                    />
+                                    {isBooked && (
+                                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                                        <X className="w-5 h-5 text-red-500 opacity-80" strokeWidth={3} />
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
-                    <div>
-                      <label className="text-sm font-semibold mb-2 block text-gray-700">End Date</label>
-                      <Input type="date" value={toInputDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} className="h-12 bg-white" />
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold block text-gray-700">Number of Days</label>
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        value={numberOfDays} 
+                        onChange={(e) => setNumberOfDays(parseInt(e.target.value) || 1)} 
+                        className="h-12 bg-white" 
+                      />
                     </div>
                   </div>
+                  {startDate && (
+                    <div className="text-sm text-gray-500 font-medium">
+                      Booking ends on: <span className="text-indigo-600 font-bold">{format(addDays(startDate, numberOfDays - 1), "PPP")}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="px-1">
@@ -402,11 +466,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   </Select>
                 </div>
 
-                {startDate && endDate && calculateDays() > 0 && (
+                {startDate && numberOfDays > 0 && (
                   <div className="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 mt-2 space-y-3">
                     <div className="flex justify-between text-gray-600 font-medium">
-                      <span>₹{listing.pricePerDay} x {calculateDays()} days</span>
-                      <span className="text-gray-900">₹{listing.pricePerDay * calculateDays()}</span>
+                      <span>₹{listing.pricePerDay} x {numberOfDays} days</span>
+                      <span className="text-gray-900">₹{listing.pricePerDay * numberOfDays}</span>
                     </div>
                     <div className="flex justify-between text-gray-600 font-medium">
                       <span>Security Deposit (Refundable)</span>
@@ -415,7 +479,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     <div className="h-px bg-indigo-200 my-2"></div>
                     <div className="flex justify-between font-black text-indigo-900 text-xl">
                       <span>Total Amount</span>
-                      <span>₹{(listing.pricePerDay * calculateDays()) + listing.deposit}</span>
+                      <span>₹{(listing.pricePerDay * numberOfDays) + listing.deposit}</span>
                     </div>
                   </div>
                 )}
