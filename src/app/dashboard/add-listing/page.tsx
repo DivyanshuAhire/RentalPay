@@ -60,29 +60,29 @@ export default function AddListing() {
   };
 
   const uploadImagesToCloudinary = async () => {
-    const uploadedUrls: string[] = [];
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "demo_cloud";
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "unsigned_preset";
 
-    for (const file of images) {
-       const formData = new FormData();
-       formData.append("file", file);
-       formData.append("upload_preset", uploadPreset);
-       
-       try {
-         const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-           method: "POST",
-           body: formData,
-         });
-         const data = await res.json();
-         if (data.secure_url) {
-           uploadedUrls.push(data.secure_url);
-         }
-       } catch (err) {
-         console.error("Cloudinary upload failed", err);
-       }
-    }
-    return uploadedUrls;
+    const uploadPromises = images.map(async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", uploadPreset);
+      
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        return data.secure_url || null;
+      } catch (err) {
+        console.error("Cloudinary upload failed", err);
+        return null;
+      }
+    });
+
+    const results = await Promise.all(uploadPromises);
+    return results.filter((url): url is string => url !== null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

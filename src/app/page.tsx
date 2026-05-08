@@ -116,9 +116,20 @@ export default function Home() {
             {listings.map((item: any) => (
               <Link href={`/listings/${item._id}`} key={item._id}>
                 <Card className="group overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 border-gray-100 shadow-sm bg-white hover:shadow-xl hover:-translate-y-1 relative">
-                  <div className="h-64 bg-gray-100 overflow-hidden relative">
+                  <div className="aspect-[4/5] bg-slate-50 overflow-hidden relative border-b border-gray-50">
                     {item.images && item.images.length > 0 ? (
-                      <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <>
+                        <img 
+                          src={item.images[0]} 
+                          className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-20 scale-110" 
+                          alt=""
+                        />
+                        <img 
+                          src={item.images[0]} 
+                          alt={item.title} 
+                          className="relative w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-500" 
+                        />
+                      </>
                     ) : (
                        <div className="flex items-center justify-center h-full text-gray-400 text-sm font-medium">No Image Uploaded</div>
                     )}

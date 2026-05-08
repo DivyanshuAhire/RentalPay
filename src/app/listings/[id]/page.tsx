@@ -11,11 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { Share2 } from "lucide-react";
+import { Share2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 
-const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
-const Circle = dynamic(() => import("react-leaflet").then((mod) => mod.Circle), { ssr: false });
+
 
 export default function ListingDetail({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -28,6 +26,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const [endDate, setEndDate] = useState<Date>();
   const [deliveryType, setDeliveryType] = useState("Pickup");
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [isPhoneVerifyModalOpen, setIsPhoneVerifyModalOpen] = useState(false);
@@ -252,13 +251,66 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Images */}
         <div className="space-y-4">
-          <div className="bg-gray-100 rounded-3xl overflow-hidden aspect-square shadow-sm relative">
+          <div className="bg-slate-50 rounded-3xl overflow-hidden aspect-[4/5] shadow-sm relative group border border-gray-100">
             {listing.images && listing.images.length > 0 ? (
-              <img src={listing.images[0]} alt="Primary" className="w-full h-full object-cover" />
+              <>
+                {/* Blurred Backdrop to match proportions automatically */}
+                <img 
+                  src={listing.images[activeImg]} 
+                  className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 scale-125" 
+                  alt=""
+                />
+                {/* Main Content Image */}
+                <img 
+                  src={listing.images[activeImg]} 
+                  alt="Primary" 
+                  className="relative w-full h-full object-contain transition-all duration-700 group-hover:scale-[1.03]" 
+                />
+              </>
             ) : (
               <div className="w-full h-full flex justify-center items-center text-gray-400">No Image Available</div>
             )}
+            
+            {listing.images && listing.images.length > 1 && (
+              <>
+                <button 
+                  onClick={() => setActiveImg((prev) => (prev - 1 + listing.images.length) % listing.images.length)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-800 shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-white"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button 
+                  onClick={() => setActiveImg((prev) => (prev + 1) % listing.images.length)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-800 shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-white"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+
+            {listing.images && listing.images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-full">
+                {listing.images.map((_: any, idx: number) => (
+                  <div key={idx} className={`w-1.5 h-1.5 rounded-full transition-all ${activeImg === idx ? 'bg-white w-4' : 'bg-white/50'}`} />
+                ))}
+              </div>
+            )}
           </div>
+
+          {listing.images && listing.images.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
+              {listing.images.map((img: string, idx: number) => (
+                <button 
+                  key={idx} 
+                  onClick={() => setActiveImg(idx)}
+                  className={`w-16 aspect-[4/5] rounded-xl overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0 relative ${activeImg === idx ? 'border-indigo-600 ring-2 ring-indigo-50' : 'border-transparent hover:border-gray-200'}`}
+                >
+                  <img src={img} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+                  {activeImg !== idx && <div className="absolute inset-0 bg-white/40" />}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Details */}
@@ -292,26 +344,14 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             <p className="text-gray-600 leading-relaxed">{listing.description}</p>
           </div>
 
-          {listing.location && listing.location.lat && (
+          {listing.location && listing.location.address && (
             <div className="py-4">
-              <h3 className="font-bold text-gray-900 mb-4 text-lg">Location Area (10km Pickup Radius)</h3>
-              <div className="h-64 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-500 font-semibold shadow-inner border border-gray-100">Map is loading...</div>
-              <div className="h-64 rounded-3xl overflow-hidden shadow-sm border border-gray-100 relative z-0">
-                <MapContainer
-                  center={[listing.location.lat, listing.location.lng]}
-                  zoom={11}
-                  scrollWheelZoom={false}
-                  style={{ width: '100%', height: '100%' }}
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <Circle
-                    center={[listing.location.lat, listing.location.lng]}
-                    pathOptions={{ fillColor: '#4f46e5', fillOpacity: 0.15, color: '#4f46e5' }}
-                    radius={5000}
-                  />
-                </MapContainer>
+              <h3 className="font-bold text-gray-900 mb-2 text-lg">Location</h3>
+              <div className="flex items-start gap-3 text-gray-600 bg-gray-50 p-5 rounded-2xl border border-gray-100 shadow-sm transition-all hover:bg-gray-100/50">
+                <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                  <MapPin className="w-5 h-5 text-indigo-600" />
+                </div>
+                <span className="font-medium leading-relaxed">{listing.location.address}</span>
               </div>
             </div>
           )}
