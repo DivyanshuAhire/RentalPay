@@ -397,7 +397,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     <div className="space-y-2">
                       <label className="text-sm font-semibold block text-gray-700">Start Date</label>
                       <Popover>
-                        <PopoverTrigger asChild>
+                        <PopoverTrigger render={
                           <Button
                             variant={"outline"}
                             className={`w-full h-12 justify-start text-left font-normal bg-white ${!startDate && "text-muted-foreground"}`}
@@ -405,7 +405,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
                           </Button>
-                        </PopoverTrigger>
+                        } />
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
