@@ -13,15 +13,6 @@ export async function POST(req: Request) {
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
     const renter = order.renterId as any;
-    if (renter?.role === "TESTER") {
-      order.razorpayOrderId = "mock_order_" + order._id;
-      await order.save();
-      return NextResponse.json({ 
-        id: order.razorpayOrderId, 
-        currency: "INR", 
-        amount: Math.round(order.totalPrice * 100) 
-      }, { status: 200 });
-    }
 
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID as string,

@@ -10,7 +10,7 @@ export interface User {
   gender?: string;
   dob?: string;
   address?: string;
-  role: "USER" | "OWNER" | "ADMIN" | "TESTER";
+  role: "USER" | "OWNER" | "ADMIN";
   bankDetails?: {
     accountNumber: string;
     ifscCode: string;

@@ -91,11 +91,11 @@ function SignupContent() {
           body: JSON.stringify({ identifier }),
         });
         if (res.ok) {
-          toast.success("OTP sent successfully!");
+          toast.success("OTP sent successfully! if you didnt recieve Please check your spam folder.");
           setStep(2);
         } else {
           const data = await res.json();
-          toast.error(data.error || "Failed to send OTP");
+          toast.error(data.error || "Failed to send OTP. Ensure your email is correct and can receive emails.");
         }
       } else {
         // Phone Auth

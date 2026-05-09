@@ -151,11 +151,11 @@ export default function Login() {
         body: JSON.stringify({ identifier: resetIdentifier }),
       });
       if (res.ok) {
-        toast.success("OTP sent to your email!");
+        toast.success("OTP sent to your email! Please check your spam folder.");
         setResetStep(2);
       } else {
         const data = await res.json();
-        toast.error(data.error || "Failed to send OTP");
+        toast.error(data.error || "Failed to send OTP. Ensure your email is correct and can receive emails.");
       }
     } catch (err: any) {
       toast.error(err.message);

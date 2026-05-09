@@ -16,7 +16,7 @@ export default function UnifiedDashboard() {
   const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (user && (user.role === "USER" || user.role === "TESTER")) {
+    if (user && user.role === "USER") {
       fetchOrders();
       fetchUserListings();
     } else if (!loading) {
@@ -113,13 +113,13 @@ export default function UnifiedDashboard() {
   };
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== "USER" && user.role !== "TESTER"))) {
+    if (!loading && (!user || user.role !== "USER")) {
       router.replace("/login");
     }
   }, [user, loading, router]);
 
   if (loading || fetching) return <div className="text-center py-24 font-medium text-gray-500">Loading dashboard...</div>;
-  if (!user || (user.role !== "USER" && user.role !== "TESTER")) return null;
+  if (!user || user.role !== "USER") return null;
 
   const myRentedClothes = orders.filter((o: any) => o.renterId?._id?.toString() === user?.id?.toString());
   const incomingRequests = orders.filter((o: any) => o.ownerId?._id?.toString() === user?.id?.toString());

@@ -26,7 +26,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const router = useRouter();
 
   const [startDate, setStartDate] = useState<Date>();
-  const [numberOfDays, setNumberOfDays] = useState<number>(1);
+  const [numberOfDays, setNumberOfDays] = useState<any>(1);
   const [deliveryType, setDeliveryType] = useState("Pickup");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
@@ -172,28 +172,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       const rzpData = await rzpRes.json();
       if (!rzpRes.ok) throw new Error(rzpData.error || "Payment creation failed");
 
-      if (user?.role === "TESTER") {
-        toast.info("Simulation Mode: Bypassing Razorpay checkout...");
-        // Directly simulate the successful payment handler
-        const verifyRes = await fetch("/api/payment/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            razorpay_order_id: rzpData.id,
-            razorpay_payment_id: "mock_test_pay_id",
-            razorpay_signature: "mock_tester_signature",
-            orderId: data.order._id
-          })
-        });
-        if (verifyRes.ok) {
-          toast.success("Simulation Complete! Order booked.");
-          setIsModalOpen(false);
-          router.push("/dashboard");
-        } else {
-          toast.error("Mock verification failed.");
-        }
-        return;
-      }
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -441,12 +419,12 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                         type="number" 
                         min="1" 
                         value={numberOfDays} 
-                        onChange={(e) => setNumberOfDays(parseInt(e.target.value) || 1)} 
+                        onChange={(e) => setNumberOfDays(e.target.value === "" ? "" : parseInt(e.target.value))} 
                         className="h-12 bg-white" 
                       />
                     </div>
                   </div>
-                  {startDate && (
+                  {startDate && numberOfDays && (
                     <div className="text-sm text-gray-500 font-medium">
                       Booking ends on: <span className="text-indigo-600 font-bold">{format(addDays(startDate, numberOfDays - 1), "PPP")}</span>
                     </div>

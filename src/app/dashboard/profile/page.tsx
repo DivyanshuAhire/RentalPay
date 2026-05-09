@@ -77,10 +77,10 @@ export default function ProfilePage() {
       });
       if (res.ok) {
         setEmailVerifyStep(2);
-        toast.success("OTP sent to your email!");
+        toast.success("OTP sent to your email! Please check your spam folder.");
       } else {
         const data = await res.json();
-        toast.error(data.error || "Failed to send OTP");
+        toast.error(data.error || "Failed to send OTP. Ensure your email is correct and can receive emails.");
       }
     } catch (err: any) {
       toast.error(err.message);
@@ -180,11 +180,11 @@ export default function ProfilePage() {
         body: JSON.stringify({ identifier: profile.email }),
       });
       if (res.ok) {
-        toast.success("OTP sent to your email!");
+        toast.success("OTP sent to your email! Please check your spam folder.");
         setPasswordChangeStep(2);
       } else {
         const data = await res.json();
-        toast.error(data.error || "Failed to send OTP");
+        toast.error(data.error || "Failed to send OTP. Ensure your email is correct and can receive emails.");
       }
     } catch (err: any) {
       toast.error(err.message);
