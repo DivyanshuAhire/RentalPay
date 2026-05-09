@@ -1,6 +1,8 @@
 import dbConnect from "@/lib/db";
 import { Settings } from "@/models/Settings";
 
+export const dynamic = "force-dynamic";
+
 export default async function ContactPage() {
   await dbConnect();
   const settings = await Settings.findOne() || {
