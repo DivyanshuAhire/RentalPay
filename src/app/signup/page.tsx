@@ -193,6 +193,9 @@ function SignupContent() {
           <CardDescription className="text-center text-md">Join RentalPay and start renting</CardDescription>
         </CardHeader>
         <CardContent>
+                    <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-3 rounded text-sm font-medium text-center mb-4">
+                      Please use your email to sign up. <b>Phone OTPs are currently not working.</b>
+                    </div>
           <div id="recaptcha-container"></div>
           {step === 1 && (
             <form onSubmit={handleSendOTP} className="space-y-4">
