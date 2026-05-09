@@ -1,0 +1,183 @@
+Cookie Consent & Data Processing Notice – RentalPay
+
+Effective Date: May 2026
+Platform: RentalPay
+
+1. INTRODUCTION
+
+This Cookie Consent & Data Processing Notice explains how RentalPay uses:
+
+Cookies
+Device identifiers
+Session technologies
+Analytics tools
+Authentication systems
+
+and how user data may be processed while using the platform.
+
+By continuing to use RentalPay, you consent to the practices described in this Notice and the Privacy Policy.
+
+2. WHAT ARE COOKIES?
+
+Cookies are small text files stored on your browser or device that help websites:
+
+Remember sessions
+Improve functionality
+Enhance security
+Analyze usage patterns
+Maintain login states
+
+RentalPay may also use similar technologies such as:
+
+Local storage
+Session storage
+Authentication tokens
+Tracking identifiers
+3. TYPES OF COOKIES WE MAY USE
+A. Essential Cookies
+
+Required for:
+
+Login authentication
+Security verification
+Session management
+Platform functionality
+
+Without these cookies, certain services may not function properly.
+
+B. Security Cookies
+
+Used to:
+
+Detect suspicious activity
+Prevent fraud
+Protect accounts
+Reduce abuse and bot activity
+C. Analytics & Performance Cookies
+
+Used to understand:
+
+Traffic patterns
+User interactions
+Platform performance
+Error tracking
+Feature usage
+
+This helps improve platform stability and user experience.
+
+D. Preference Cookies
+
+Used to remember:
+
+User preferences
+Session settings
+Certain interface behaviors
+4. DATA WE MAY PROCESS
+
+RentalPay may process:
+
+IP addresses
+Browser/device information
+Login activity
+Session identifiers
+Usage analytics
+Payment-related metadata
+Verification status
+Technical logs
+
+We do NOT intentionally collect unnecessary sensitive personal information through cookies.
+
+5. PURPOSE OF DATA PROCESSING
+
+Your data may be processed for:
+
+Account authentication
+Fraud prevention
+Platform security
+Booking management
+Payment processing
+Performance optimization
+Error monitoring
+Legal compliance
+Customer support
+6. THIRD-PARTY SERVICES
+
+RentalPay may use third-party services that process limited technical information, including:
+
+Razorpay
+Firebase
+MongoDB Atlas
+Vercel
+
+These providers may use their own cookies or tracking technologies subject to their respective privacy policies.
+
+7. USER CONSENT
+
+By:
+
+Creating an account
+Logging in
+Continuing to browse
+Using platform features
+
+you consent to:
+
+Cookie usage
+Session technologies
+Necessary data processing required for platform operations
+
+Where legally required, RentalPay may display cookie consent banners or preference options.
+
+8. MANAGING COOKIES
+
+Users may:
+
+Block cookies
+Delete cookies
+Restrict tracking
+
+through browser settings.
+
+However, disabling certain cookies may:
+
+Break login functionality
+Interrupt bookings
+Affect payment flows
+Reduce platform usability
+9. SECURITY DISCLAIMER
+
+While RentalPay implements commercially reasonable safeguards, no online system is fully secure.
+
+Users acknowledge risks associated with:
+
+Internet transmission
+Browser vulnerabilities
+Third-party services
+Device compromise
+
+Use of the platform remains at the user’s own risk.
+
+10. DATA RETENTION
+
+Technical logs, session data, and cookie-related identifiers may be retained for:
+
+Security analysis
+Fraud prevention
+Operational continuity
+Legal compliance
+
+Retention duration may vary depending on operational and legal requirements.
+
+11. POLICY CHANGES
+
+RentalPay may update this Notice at any time without prior notice.
+
+Continued use of the platform after updates constitutes acceptance of revised practices.
+
+12. CONTACT
+
+For questions regarding cookies or data processing:
+
+Email: privacy@rentalpay.online
+
+Website: RentalPay Official Website

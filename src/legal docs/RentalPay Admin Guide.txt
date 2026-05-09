@@ -1,0 +1,68 @@
+RentalPay Platform Guide
+Welcome to your platform! This guide explains how the website works, the automated processes, and the manual tasks you need to perform as the owner/admin.
+
+1. High-Level Website Workflow
+The platform operates on a Trust-and-Verify (OTP-based) model to ensure items are safely exchanged and payments are secured.
+
+Step-by-Step Flow:
+Onboarding: Users sign up and verify their phone numbers via OTP (Firebase).
+Listing: A user (Owner) uploads an item. It goes to Pending status.
+Moderation (Manual): You (Admin) review and approve the listing.
+Booking: A user (Renter) pays for an item (Rental Fee + Security Deposit + Platform Fee).
+Handover (Automated Security):
+The Renter has a Pickup OTP.
+The Owner asks for this OTP when they meet.
+Once the Owner verifies it, the Owner's earnings are unlocked.
+Return (Automated Security):
+The Owner has a Return OTP.
+The Renter asks for this OTP when they return the item.
+Once the Renter verifies it, their Security Deposit is unlocked.
+Withdrawal: Users request their "Available" funds (Earnings or Deposits).
+Payout (Manual): You (Admin) send the money to their bank/UPI and mark it as completed.
+2. 💰 Financial Flow (How Money is Handled)
+It is crucial to understand that the system holds the money as a middleman until the exchange is verified.
+
+The Breakdown:
+When a renter pays ₹1000 for a rental:
+
+Total Paid: ₹1000 (Example: ₹700 Rent + ₹200 Deposit + ₹100 Platform Fee).
+Platform Commission: The system automatically takes 15% from the Rent (₹700 - 15% = ₹595 for the owner, ₹105 for you).
+Security Deposit: The ₹200 is held by you (the platform) and is 100% refundable to the renter if the item is returned safely.
+The Stages of Money:
+Pending: When the renter pays, the money is "Locked" by the platform. Neither the owner nor the renter can withdraw it.
+Available (Owner Earning): Becomes available ONLY after the Pickup OTP is verified. This ensures the owner only gets paid if they actually handed over the item.
+Available (Security Deposit): Becomes available ONLY after the Return OTP is verified. This ensures the renter only gets their deposit back if they actually returned the item.
+Requested: When a user clicks "Withdraw", they are asking you to send this "Available" money to their actual bank account.
+Completed: This is the final stage after you manually transfer the money and click "Confirm" in the Admin Panel.
+3. Automated Processes (The System Does This)
+OTP Generation: Unique 6-digit codes for every pickup and return.
+Status Transitions: Moving money from "Pending" to "Available" based on OTP verification.
+Commission Calculation: Automatically splitting the rent between the owner and the platform.
+Payment Tracking: Marking orders as "Paid" once the renter completes the gateway transaction.
+4. Manual Tasks (Things YOU Must Do)
+A. Navigation & Dashboard
+Use the Sticky Navigation Bar at the top of the 
+Admin Dashboard
+ to quickly jump between:
+
+Moderation: Reviewing new listings.
+Payouts: Handling money transfers.
+Users: Managing members.
+Transactions: Viewing recent sales.
+B. Listing Moderation
+Review Pending listings.
+Approve if they meet quality standards.
+Edit if you need to fix a small detail (price/category) before making it live.
+C. Processing Payouts (The Most Important Task)
+Go to the Payout Requests section.
+Look for "Requested" cards.
+Check Details: The card shows the User's Bank Account or UPI ID.
+Transfer Funds: Open your bank/UPI app and send the exact amount shown on the card.
+Confirm: Click "Confirm Payment Sent" to remove the request and notify the user.
+5. Security Features
+Middleman Security: The platform holds all funds until the physical exchange is verified by both parties.
+OTP Verification: Prevents "I never received the item" or "I returned it" disputes.
+Security Deposit: Provides a buffer for the owner against damage.
+IMPORTANT
+
+Pro Tip: Always verify the Beneficiary Name in your bank app matches the name shown on the payout card before sending money.

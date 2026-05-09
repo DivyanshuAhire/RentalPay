@@ -439,22 +439,21 @@ Continued use of the platform after modifications constitutes acceptance of revi
 
 # 21. CONTACT
 
-**Support Email:** [support@rentalpay.online](mailto:support@rentalpay.online)
-**Platform:** [RentalPay Official Website](https://rentalpay.online?utm_source=chatgpt.com)
+**Support Email:** [rentalpay.in@gmail.com](mailto:rentalpay.in@gmail.com)
+**Platform:** [RentalPay Official Website](https://rentalpay.online)
 
 ---
 
-# ADDITIONAL RECOMMENDATION ⚠️
+# 22. RELATED POLICIES & AGREEMENTS
 
-You should also create:
+By accessing or using the platform, you also acknowledge, agree to, and accept the following policies and agreements which form an integral part of these Terms & Conditions:
 
-1. Privacy Policy
-2. Refund & Cancellation Policy
-3. Shipping/Delivery Policy
-4. Community Guidelines
-5. DMCA/IP Complaint Policy
-6. Seller Agreement
-7. Consent for data processing + cookies
+* [Privacy Policy](/privacy)
+* [Refund & Cancellation Policy](/refund)
+* [Shipping/Delivery Policy](/shipping)
+* [Community Guidelines](/community)
+* [DMCA/IP Complaint Policy](/dmca)
+* [Seller Agreement](/seller-agreement)
+* [Consent for Data Processing & Cookies](/data-consent)
 
-Without these, payment gateways and future investors may flag compliance gaps.
 `;

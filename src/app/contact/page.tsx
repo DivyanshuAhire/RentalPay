@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export default async function ContactPage() {
   await dbConnect();
   const settings = await Settings.findOne() || {
-    contactEmail: "support@rentalpay.com",
+    contactEmail: "rentalpay.in@gmail.com",
     contactPhone: "+91 0000000000",
     contactAddress: "123 Rental Street, Fashion City",
     contactText: "We'd love to hear from you. Drop us a line!",

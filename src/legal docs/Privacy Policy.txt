@@ -1,0 +1,267 @@
+Privacy Policy – RentalPay
+
+Effective Date: May 2026
+Platform: RentalPay
+
+1. INTRODUCTION
+
+This Privacy Policy explains how RentalPay (“we,” “our,” or “platform”) collects, uses, stores, processes, and shares user information when you access or use our services.
+
+By using RentalPay, you consent to the practices described in this Privacy Policy.
+
+If you do not agree with this Policy, you must discontinue use of the platform immediately.
+
+2. INFORMATION WE COLLECT
+
+We may collect the following categories of information:
+
+A. Account Information
+Full name
+Email address
+Mobile number
+Profile photo
+Username
+Password (encrypted/hashed)
+B. Identity & Verification Information
+
+Where applicable, we may collect:
+
+OTP verification status
+Government-issued identification
+Account verification records
+Fraud-prevention information
+C. Payment & Payout Information
+
+Payments are processed through third-party providers including Razorpay
+.
+
+We may collect:
+
+Transaction identifiers
+Payment status
+Refund status
+UPI IDs
+Bank account details
+Payout details
+
+RentalPay does NOT store full debit/credit card information on its servers.
+
+D. Listing & Uploaded Content
+
+Users may upload:
+
+Clothing images
+Descriptions
+Reviews
+Messages
+Other listing-related content
+
+Users remain responsible for uploaded content.
+
+E. Technical & Device Information
+
+We may automatically collect:
+
+IP address
+Browser type
+Device information
+Operating system
+App/browser version
+Usage logs
+Cookies and session identifiers
+Referral URLs
+Crash/error logs
+F. Location Information
+
+Approximate location data may be collected through:
+
+IP address
+Device/browser permissions
+Delivery information
+3. HOW WE USE INFORMATION
+
+We may use collected information to:
+
+Create and manage accounts
+Process bookings and payments
+Enable payouts
+Verify identity
+Prevent fraud and abuse
+Improve platform functionality
+Moderate listings and content
+Provide customer support
+Analyze platform usage
+Enforce legal agreements
+Comply with legal obligations
+Send service-related communications
+
+We may also use aggregated and anonymized analytics data for operational and business purposes.
+
+4. COOKIES & TRACKING TECHNOLOGIES
+
+RentalPay may use:
+
+Cookies
+Session storage
+Analytics tools
+Security monitoring tools
+
+These technologies help:
+
+Maintain login sessions
+Improve performance
+Detect suspicious activity
+Understand user behavior
+
+Users may disable cookies in browser settings, though parts of the platform may stop functioning properly.
+
+5. INFORMATION SHARING
+
+We may share information with:
+
+A. Payment & Infrastructure Providers
+
+Including:
+
+Payment gateways
+Cloud hosting providers
+Database providers
+Authentication providers
+Analytics providers
+
+Examples may include:
+
+Razorpay
+Firebase
+MongoDB Atlas
+Vercel
+B. Legal & Regulatory Authorities
+
+We may disclose information if required:
+
+By law
+By court order
+During investigations
+For fraud prevention
+To protect platform safety or legal rights
+C. Business Transfers
+
+In case of:
+
+Acquisition
+Merger
+Investment
+Restructuring
+Asset sale
+
+user information may be transferred as part of business operations.
+
+6. DATA RETENTION
+
+We may retain information:
+
+As long as accounts remain active
+For operational purposes
+To comply with legal obligations
+To resolve disputes
+For fraud prevention and audit purposes
+
+Even after account deletion, some records may remain in backups, logs, or compliance archives for a reasonable period.
+
+7. ACCOUNT & DATA DELETION
+
+Users may request:
+
+Account deletion
+Removal of certain personal data
+
+However, RentalPay may retain limited information where necessary for:
+
+Legal compliance
+Fraud prevention
+Transaction records
+Financial audits
+Security investigations
+8. SECURITY MEASURES
+
+RentalPay implements commercially reasonable safeguards including:
+
+Authentication systems
+Encrypted communications (HTTPS)
+Access restrictions
+Database security measures
+Monitoring systems
+
+However, no system is completely secure.
+
+Users acknowledge that:
+
+Internet transmissions carry inherent risks
+Unauthorized access may occur
+Platform security cannot be guaranteed absolutely
+
+Use of the platform is at the user’s own risk.
+
+9. THIRD-PARTY SERVICES
+
+RentalPay may contain integrations or links to third-party services.
+
+We are not responsible for:
+
+Third-party privacy practices
+External websites
+Payment provider systems
+External data handling policies
+
+Users should review third-party privacy policies independently.
+
+10. CHILDREN’S PRIVACY
+
+RentalPay is not intended for users under 18 years of age.
+
+We do not knowingly collect personal information from minors.
+
+If we become aware of such collection, we may remove the information and suspend associated accounts.
+
+11. USER RESPONSIBILITIES
+
+Users are responsible for:
+
+Maintaining account security
+Protecting login credentials
+Avoiding phishing/scam attempts
+Ensuring uploaded content is lawful
+
+RentalPay is not responsible for losses caused by user negligence.
+
+12. INTERNATIONAL ACCESS
+
+RentalPay primarily operates under Indian laws and infrastructure.
+
+Users accessing the platform from outside India acknowledge that their information may be processed and stored in India or other jurisdictions where service providers operate.
+
+13. CHANGES TO THIS POLICY
+
+RentalPay may modify this Privacy Policy at any time without prior notice.
+
+Updated versions become effective immediately upon publication.
+
+Continued use of the platform constitutes acceptance of revised policies.
+
+14. DISCLAIMER OF LIABILITY
+
+To the maximum extent permitted by law, RentalPay shall not be liable for:
+
+Unauthorized access
+Cyberattacks
+Data breaches caused by third parties
+Payment provider failures
+User negligence
+Internet/network failures
+15. CONTACT
+
+For privacy-related concerns:
+
+Email: privacy@rentalpay.online
+
+Website: RentalPay Official Website

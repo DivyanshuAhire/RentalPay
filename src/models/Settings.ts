@@ -15,7 +15,7 @@ const SettingsSchema = new Schema<ISettings>(
   {
     platformMode: { type: String, enum: ["production", "test"], default: "test" },
 
-    contactEmail: { type: String, default: "support@rentalpay.com" },
+    contactEmail: { type: String, default: "rentalpay.in@gmail.com" },
     contactPhone: { type: String, default: "+91 0000000000" },
     contactAddress: { type: String, default: "123 Rental Street, Fashion City" },
     contactText: { type: String, default: "We'd love to hear from you. Drop us a line!" },
