@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   const [ordersList, setOrdersList] = useState([]);
   const [listingsList, setListingsList] = useState([]);
   const [payoutRequests, setPayoutRequests] = useState([]);
-  const [systemSettings, setSystemSettings] = useState({ bannerMessage: "", showBanner: true, disablePhoneAuth: false });
+  const [systemSettings, setSystemSettings] = useState<any>({ bannerMessage: "", showBanner: true, disablePhoneAuth: false, contactEmail: "", contactPhone: "", contactAddress: "", contactText: "", contactInstagram: "", faqs: [] });
   const [fetching, setFetching] = useState(true);
   
   // Edit State
@@ -532,9 +532,103 @@ export default function AdminDashboard() {
                          </Button>
                       </div>
                    </div>
+                   <div className="pt-4 border-t border-gray-100">
+                      <Label className="text-lg font-bold mb-2 block">Contact Information</Label>
+                      <div className="space-y-3">
+                         <Input 
+                           value={systemSettings.contactEmail || ""} 
+                           onChange={(e) => setSystemSettings({...systemSettings, contactEmail: e.target.value})} 
+                           placeholder="Support Email" 
+                           className="rounded-xl"
+                         />
+                         <Input 
+                           value={systemSettings.contactPhone || ""} 
+                           onChange={(e) => setSystemSettings({...systemSettings, contactPhone: e.target.value})} 
+                           placeholder="Support Phone Number" 
+                           className="rounded-xl"
+                         />
+                         <Input 
+                           value={systemSettings.contactAddress || ""} 
+                           onChange={(e) => setSystemSettings({...systemSettings, contactAddress: e.target.value})} 
+                           placeholder="Physical Address" 
+                           className="rounded-xl"
+                         />
+                         <Textarea 
+                           value={systemSettings.contactText || ""} 
+                           onChange={(e) => setSystemSettings({...systemSettings, contactText: e.target.value})} 
+                           placeholder="Contact Page Intro Text" 
+                           className="rounded-xl"
+                         />
+                         <Input 
+                           value={systemSettings.contactInstagram || ""} 
+                           onChange={(e) => setSystemSettings({...systemSettings, contactInstagram: e.target.value})} 
+                           placeholder="Instagram Handle (e.g., @rentalpay)" 
+                           className="rounded-xl"
+                         />
+                      </div>
+                   </div>
+
+                   <div className="pt-4 border-t border-gray-100">
+                      <Label className="text-lg font-bold mb-2 flex justify-between items-center">
+                        FAQs
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setSystemSettings({
+                            ...systemSettings, 
+                            faqs: [...(systemSettings.faqs || []), { question: "", answer: "" }]
+                          })}
+                        >
+                          + Add FAQ
+                        </Button>
+                      </Label>
+                      <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                        {(systemSettings.faqs || []).map((faq: any, idx: number) => (
+                           <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2 relative">
+                              <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="sm" 
+                                className="absolute top-2 right-2 h-6 w-6 p-0 text-red-500 hover:bg-red-50"
+                                onClick={() => {
+                                  const newFaqs = [...systemSettings.faqs];
+                                  newFaqs.splice(idx, 1);
+                                  setSystemSettings({...systemSettings, faqs: newFaqs});
+                                }}
+                              >
+                                ✕
+                              </Button>
+                              <Input 
+                                value={faq.question} 
+                                onChange={(e) => {
+                                  const newFaqs = [...systemSettings.faqs];
+                                  newFaqs[idx].question = e.target.value;
+                                  setSystemSettings({...systemSettings, faqs: newFaqs});
+                                }} 
+                                placeholder="Question" 
+                                className="font-bold rounded-lg"
+                              />
+                              <Textarea 
+                                value={faq.answer} 
+                                onChange={(e) => {
+                                  const newFaqs = [...systemSettings.faqs];
+                                  newFaqs[idx].answer = e.target.value;
+                                  setSystemSettings({...systemSettings, faqs: newFaqs});
+                                }} 
+                                placeholder="Answer" 
+                                className="rounded-lg"
+                              />
+                           </div>
+                        ))}
+                        {(!systemSettings.faqs || systemSettings.faqs.length === 0) && (
+                          <div className="text-sm text-gray-400 text-center py-4">No FAQs added yet.</div>
+                        )}
+                      </div>
+                   </div>
                 </div>
 
-                <div className="bg-indigo-50 rounded-3xl p-8 border border-indigo-100 space-y-6 flex flex-col justify-between">
+                <div className="bg-indigo-50 rounded-3xl p-8 border border-indigo-100 space-y-6 flex flex-col justify-between h-fit sticky top-24">
                    <div>
                       <h3 className="text-xl font-bold text-indigo-900 mb-2">Platform Management</h3>
                       <p className="text-indigo-700/80 font-medium">Changes here affect all users in real-time. Ensure you double-check the rotating message for typos before saving.</p>

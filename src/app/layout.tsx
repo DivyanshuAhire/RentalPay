@@ -29,6 +29,15 @@ export default function RootLayout({
             <main className="flex-1 container mx-auto px-4 py-8">
               {children}
             </main>
+            <footer className="bg-white border-t py-8 text-center text-gray-500 text-sm">
+              <div className="container mx-auto px-4 flex flex-col md:flex-row justify-center items-center gap-6">
+                <p>&copy; {new Date().getFullYear()} RentalPay. All rights reserved.</p>
+                <div className="flex gap-4">
+                  <a href="/faq" className="hover:text-indigo-600 transition-colors">FAQ</a>
+                  <a href="/contact" className="hover:text-indigo-600 transition-colors">Contact Us</a>
+                </div>
+              </div>
+            </footer>
           </div>
         </AuthProvider>
         <Toaster position="bottom-right" />

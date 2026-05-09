@@ -5,6 +5,12 @@ export interface ISettings extends Document {
   bannerMessage: string;
   showBanner: boolean;
   disablePhoneAuth: boolean;
+  contactEmail?: string;
+  contactPhone?: string;
+  contactAddress?: string;
+  contactText?: string;
+  contactInstagram?: string;
+  faqs?: { question: string; answer: string }[];
 }
 
 const SettingsSchema = new Schema<ISettings>(
@@ -13,6 +19,12 @@ const SettingsSchema = new Schema<ISettings>(
     bannerMessage: { type: String, default: "SITE IS UNDER TESTING • TRY MAKING PAYMENT WITHOUT REAL MONEY" },
     showBanner: { type: Boolean, default: true },
     disablePhoneAuth: { type: Boolean, default: false },
+    contactEmail: { type: String, default: "support@rentalpay.com" },
+    contactPhone: { type: String, default: "+91 0000000000" },
+    contactAddress: { type: String, default: "123 Rental Street, Fashion City" },
+    contactText: { type: String, default: "We'd love to hear from you. Drop us a line!" },
+    contactInstagram: { type: String, default: "@rentalpay" },
+    faqs: [{ question: String, answer: String }]
   },
   { timestamps: true }
 );
