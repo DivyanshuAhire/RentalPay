@@ -4,7 +4,7 @@ import "./globals.css";
 
 import { AuthProvider } from "@/context/AuthContext";
 import { Navbar } from "@/components/Navbar";
-import { Banner } from "@/components/Banner";
+
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,7 +24,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <div className="min-h-screen flex flex-col bg-slate-50">
-            <Banner />
+
             <Navbar />
             <main className="flex-1 container mx-auto px-4 py-8">
               {children}

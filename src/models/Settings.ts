@@ -2,9 +2,7 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface ISettings extends Document {
   platformMode: "production" | "test";
-  bannerMessage: string;
-  showBanner: boolean;
-  disablePhoneAuth: boolean;
+
   contactEmail?: string;
   contactPhone?: string;
   contactAddress?: string;
@@ -16,9 +14,7 @@ export interface ISettings extends Document {
 const SettingsSchema = new Schema<ISettings>(
   {
     platformMode: { type: String, enum: ["production", "test"], default: "test" },
-    bannerMessage: { type: String, default: "SITE IS UNDER TESTING • TRY MAKING PAYMENT WITHOUT REAL MONEY" },
-    showBanner: { type: Boolean, default: true },
-    disablePhoneAuth: { type: Boolean, default: false },
+
     contactEmail: { type: String, default: "support@rentalpay.com" },
     contactPhone: { type: String, default: "+91 0000000000" },
     contactAddress: { type: String, default: "123 Rental Street, Fashion City" },

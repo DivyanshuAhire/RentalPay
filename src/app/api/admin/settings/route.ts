@@ -23,9 +23,6 @@ export async function GET() {
     if (!settings) {
       settings = await Settings.create({
         platformMode: "test",
-        bannerMessage: "SITE IS UNDER TESTING • TRY MAKING PAYMENT WITHOUT REAL MONEY",
-        showBanner: true,
-        disablePhoneAuth: false,
       });
     }
     return NextResponse.json(settings);

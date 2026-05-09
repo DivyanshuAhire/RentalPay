@@ -25,7 +25,7 @@ interface AuthContextType {
   logout: () => void;
   loading: boolean;
   refreshUser: () => Promise<void>;
-  sysSettings: { bannerMessage: string; showBanner: boolean; disablePhoneAuth: boolean } | null;
+  sysSettings: any;
 }
 
 const AuthContext = createContext<AuthContextType>({

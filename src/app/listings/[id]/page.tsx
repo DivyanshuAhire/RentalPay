@@ -134,7 +134,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       router.push("/login");
       return;
     }
-    if (!user.phone && !sysSettings?.disablePhoneAuth) {
+    if (!user.phone) {
       toast.error("Please verify your phone number to continue.");
       setIsPhoneVerifyModalOpen(true);
       return;
@@ -491,42 +491,9 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   onChange={(e) => setPhoneToVerify(e.target.value)}
                   className="h-12"
                 />
-                {!sysSettings ? (
-                  <Button disabled className="w-full h-12 bg-gray-200 text-gray-500">Loading settings...</Button>
-                ) : sysSettings.disablePhoneAuth === true ? (
-                  <Button 
-                    onClick={async () => {
-                      if (!phoneToVerify) return toast.error("Enter phone number");
-                      setIsPhoneVerifyLoading(true);
-                      try {
-                        const res = await fetch("/api/user/profile", {
-                          method: "PUT",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ phone: phoneToVerify }),
-                        });
-                        if (res.ok) {
-                          toast.success("Phone number saved (OTP Bypassed)");
-                          setIsPhoneVerifyModalOpen(false);
-                          if (refreshUser) await refreshUser();
-                        } else {
-                          toast.error("Failed to save phone number");
-                        }
-                      } catch (err: any) {
-                        toast.error(err.message || "Something went wrong");
-                      } finally {
-                        setIsPhoneVerifyLoading(false);
-                      }
-                    }} 
-                    disabled={isPhoneVerifyLoading} 
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 h-12"
-                  >
-                    {isPhoneVerifyLoading ? "Saving..." : "Save Phone Number (Skip OTP)"}
-                  </Button>
-                ) : (
-                  <Button onClick={handleSendPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
-                    {isPhoneVerifyLoading ? "Sending..." : "Send OTP"}
-                  </Button>
-                )}
+                <Button onClick={handleSendPhoneOTP} disabled={isPhoneVerifyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-12">
+                  {isPhoneVerifyLoading ? "Sending..." : "Send OTP"}
+                </Button>
               </>
             ) : (
               <>

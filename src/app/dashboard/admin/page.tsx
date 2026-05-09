@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   const [ordersList, setOrdersList] = useState([]);
   const [listingsList, setListingsList] = useState([]);
   const [payoutRequests, setPayoutRequests] = useState([]);
-  const [systemSettings, setSystemSettings] = useState<any>({ bannerMessage: "", showBanner: true, disablePhoneAuth: false, contactEmail: "", contactPhone: "", contactAddress: "", contactText: "", contactInstagram: "", faqs: [] });
+  const [systemSettings, setSystemSettings] = useState<any>({ contactEmail: "", contactPhone: "", contactAddress: "", contactText: "", contactInstagram: "", faqs: [] });
   const [fetching, setFetching] = useState(true);
   
   // Edit State
@@ -490,48 +490,7 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10 space-y-8">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div className="space-y-4">
-                   <div className="space-y-4">
-                      <Label className="text-lg font-bold mb-2 block">Top Banner Message (Rotating Text)</Label>
-                      <p className="text-sm text-gray-500 mb-4 font-medium">This text will scroll horizontally at the very top of the entire website.</p>
-                      <Input 
-                        value={systemSettings.bannerMessage} 
-                        onChange={(e) => setSystemSettings({...systemSettings, bannerMessage: e.target.value})} 
-                        className="h-14 text-lg border-gray-200 focus:ring-indigo-500 rounded-2xl mb-4"
-                        placeholder="Enter marquee message..."
-                        disabled={!systemSettings.showBanner}
-                      />
-                      
-                      <div className="flex items-center gap-4 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                         <div className="flex-1">
-                            <div className="font-bold text-gray-900">{systemSettings.showBanner ? "BANNER IS VISIBLE" : "BANNER IS HIDDEN"}</div>
-                            <div className="text-xs text-gray-500 mt-1">{systemSettings.showBanner ? "Text is scrolling on all pages" : "The marquee is currently disabled"}</div>
-                         </div>
-                         <Button 
-                            onClick={() => setSystemSettings({...systemSettings, showBanner: !systemSettings.showBanner})}
-                            variant={systemSettings.showBanner ? "outline" : "destructive"}
-                            className="rounded-xl h-12 px-6 font-bold"
-                         >
-                            {systemSettings.showBanner ? "Hide Banner" : "Show Banner"}
-                         </Button>
-                      </div>
-                   </div>
-                   <div className="pt-4">
-                      <Label className="text-lg font-bold mb-2 block">Phone Verification Mode</Label>
-                      <p className="text-sm text-gray-500 mb-4 font-medium">When disabled, users can register and verify any number without real OTP.</p>
-                      <div className="flex items-center gap-4 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                         <div className="flex-1">
-                            <div className="font-bold text-gray-900">{systemSettings.disablePhoneAuth ? "OTP DISABLED (Fast Testing)" : "OTP ENABLED (Real Production)"}</div>
-                            <div className="text-xs text-gray-500 mt-1">{systemSettings.disablePhoneAuth ? "Users will bypass Firebase Phone Auth" : "Users must verify via Firebase OTP"}</div>
-                         </div>
-                         <Button 
-                            onClick={() => setSystemSettings({...systemSettings, disablePhoneAuth: !systemSettings.disablePhoneAuth})}
-                            variant={systemSettings.disablePhoneAuth ? "destructive" : "outline"}
-                            className="rounded-xl h-12 px-6 font-bold"
-                         >
-                            {systemSettings.disablePhoneAuth ? "Enable OTP" : "Disable OTP"}
-                         </Button>
-                      </div>
-                   </div>
+
                    <div className="pt-4 border-t border-gray-100">
                       <Label className="text-lg font-bold mb-2 block">Contact Information</Label>
                       <div className="space-y-3">
