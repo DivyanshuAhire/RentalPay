@@ -6,6 +6,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Navbar } from "@/components/Navbar";
 
 import { Toaster } from "@/components/ui/sonner";
+import { SupportChat } from "@/components/support/SupportChat";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,6 +63,7 @@ export default function RootLayout({
           </div>
         </AuthProvider>
         <Toaster position="bottom-right" />
+        <SupportChat />
       </body>
     </html>
   );
